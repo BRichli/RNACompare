@@ -27,8 +27,10 @@ Data inspection tool for DNA sequences
 ## Questions for Zhong
 
 #### 1) Clarify that we are only trying to accomplish the same thing that HHSEARCH does (comparing two models) but we aren't using HMMS
-#### 2) Is he aware of current methods to do SCFG to SCFG distance comparison (I think the answer is no)
+#### 2) Is he aware of current methods to do SCFG to SCFG distance comparison (I think the answer is no), if this turns out to be too challenging may we resort to the HMM-HMM comparison.  
 #### 3) Do we care about comparing the content of the rna sequences or only their secondary structures (shapes). 
+#### 4) Can we instead of comparing languages, compare grammars as an approximation of language similarity. 
+
 
 
 
@@ -44,3 +46,4 @@ Data inspection tool for DNA sequences
 ## TODO's 
 #### 1) Meet with Zhong tomorrow (ALL) (9/23)
 #### 2) Make Tex Doc (Bryan) (9/22)
+#### 3) Make problem statement paragraph (Bryan) (9/22)
