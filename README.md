@@ -18,7 +18,10 @@ Data inspection tool for DNA sequences
 
 
 ## Questions
-#### 1) Are we using Markov Models or Constrained SCFG's (Covariance Models). Both have been used, so we may just be able to pick. 
+#### 1) What is the constraint that a covariance model places upon a scfg. 
+#### 2) Is a covariance model identical to a Visually Pushdown Automata (IE Can we use work on both?)
+#### 3) 
+
 
 
 
