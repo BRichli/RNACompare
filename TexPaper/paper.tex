@@ -1,0 +1,342 @@
+%%
+%% This is file `sample-acmsmall-submission.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% samples.dtx  (with options: `acmsmall-submission')
+%%
+%% IMPORTANT NOTICE:
+%%
+%% For the copyright see the source file.
+%%
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from sample-acmsmall-submission.tex.
+%%
+%% For distribution of the original source see the terms
+%% for copying and modification in the file samples.dtx.
+%%
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+%%
+%%
+%% Commands for TeXCount
+%TC:macro \cite [option:text,text]
+%TC:macro \citep [option:text,text]
+%TC:macro \citet [option:text,text]
+%TC:envir table 0 1
+%TC:envir table* 0 1
+%TC:envir tabular [ignore] word
+%TC:envir displaymath 0 word
+%TC:envir math 0 word
+%TC:envir comment 0 0
+%%
+%%
+%% The first command in your LaTeX source must be the \documentclass command.
+% \documentclass[sigplan,review,screen,anonymous]{acmart}
+% \settopmatter{printfolios=false,printccs=false,printacmref=true}
+\documentclass[10pt,conference,peerreview]{IEEEtran}
+
+\usepackage[utf8]{inputenc}
+\RequirePackage[T1]{fontenc}
+% \RequirePackage[tt=false, type1=true]{libertine}
+% \RequirePackage[varqu]{zi4}
+% \RequirePackage[libertine]{newtxmath}
+\usepackage{microtype}
+\usepackage{wrapfig}
+\usepackage{listings}
+\usepackage{xspace}
+\usepackage{mathpartir}
+%\usepackage{subcaption} %% For complex figures with subfigures/subcaptions
+                    %% http://ctan.org/pkg/subcaption
+\usepackage{tabulary}
+\usepackage{colortbl}
+\usepackage[inference]{semantic}
+\usepackage{booktabs}   %% For formal tables:
+                    %% http://ctan.org/pkg/booktabs
+\usepackage{listings}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{makecell}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage{pifont}
+\usepackage{algorithm}
+\usepackage[lofdepth,lotdepth]{subfig}
+\newfloat{algorithm}{t}{lop}
+\usepackage{hyperref}
+\usepackage{amssymb}
+\usepackage{comment}
+\usepackage[backend=bibtex,style=numeric,natbib=true]{biblatex}
+\usepackage{lineno}
+
+\lstset
+{ %Formatting for code in appendix
+    numbers=left,
+    stepnumber=1
+}
+
+
+
+%%
+%% \BibTeX command to typeset BibTeX logo in the docs
+\AtBeginDocument{%
+\providecommand\BibTeX{{%
+Bib\TeX}}
+}
+
+\bibliography{references}
+
+% \citestyle{acmauthoryear}
+% \bibliographystyle{ACM-Reference-Format}
+
+%SILENCED COMMAND, DONE TO MAKE A READABLE VERSION FOR FIRST PRINT
+\newcommand{\sng}[1]{\textcolor{blue}{\textsf{SNG:$\clubsuit$#1$\clubsuit$}}}
+
+
+% \newcommand{\sng}[1]{\textcolor{blue}{SNG}}
+
+% Bryan's notes (blue)
+\newcommand{\br}[1]{\textcolor{blue}{\textbf{Bryan:} #1}}
+
+% Dominic's notes (green)
+\newcommand{\dt}[1]{\textcolor{green!60!black}{\textbf{Dominic:} #1}}
+
+% Joseph's notes (red)
+\newcommand{\jv}[1]{\textcolor{red}{\textbf{Joseph:} #1}}
+
+\newcommand{\startsym}{\ensuremath{S}\xspace}
+\newcommand{\grammar}{\ensuremath{G}\xspace}
+\newcommand{\terminals}{\ensuremath{\Sigma}\xspace}
+\newcommand{\spec}{\ensuremath{\phi}\xspace}
+\newcommand{\nonterm}{\ensuremath{\mathcal{N}}\xspace}
+\newcommand{\productions}{\ensuremath{P}\xspace}
+\newcommand{\gterms}{\ensuremath{T}\xspace}
+\newcommand{\gterm}{\ensuremath{t}\xspace}
+
+\newcommand{\paramlang}[1]{\mathcal{L}_\grammar(#1)}
+\newcommand{\lang}{\ensuremath{\mathcal{L}_\grammar}\xspace}
+\newcommand{\gderive}{\ensuremath{\rightarrow_g}\xspace}
+\newcommand{\heuristic}[1]{\hsym'#1}
+\newcommand{\hsym}{\ensuremath{\mathbb{H}}\xspace}
+\newcommand{\hsyml}{\ensuremath{\mathbb{H}_L}\xspace}
+\newcommand{\hsymg}{\ensuremath{\mathbb{H}_G}\xspace}
+\newcommand{\ShannonEnt}{\ensuremath{H_S}\xspace}
+\newcommand{\autopandas}{\textsc{AutoPandas}\xspace}
+\newcommand{\sygus}{SyGuS\xspace}
+\newcommand{\worklist}{\ensuremath{\omega}\xspace}
+\newcommand\btime[2]{#1 \scriptsize{\ensuremath{\pm} #2}}
+\newcommand{\leqe}{\ensuremath{\leq_{\hsym}}\xspace}
+\newcommand{\func}{f\xspace}
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{assumption}{Assumption}
+\newcommand{\lchev}{\guillemotleft}
+\newcommand{\rchev}{\guillemotright}
+
+
+%% BEGIN RUBY
+\def\codesize{\normalsize}
+\definecolor{programs}{gray}{0.1}
+\definecolor{keywords}{HTML}{204a87}
+\definecolor{comments}{HTML}{8f5902}
+\definecolor{strings}{HTML}{4e9a06}
+
+\lstloadlanguages{Ruby}
+\lstset{%
+basicstyle=\sf\small\ttfamily\color{programs},
+commentstyle = \sffamily\color{comments},
+keywordstyle=\ttfamily\color{keywords},
+stringstyle=\color{strings},
+columns=flexible,
+literate={ {->}{{$\rightarrow\ $}}2
+          {&&}{{$\land\ $}}2
+          {>=}{{$\geq\ $}}2
+          {<=}{{$\leq\ $}}2
+          {||}{{$\lor\ $}}2
+          {=>}{{$\Rightarrow\ $}}2
+          {<<}{{\guillemotleft}}1
+          {>>}{{\guillemotright}}1
+          {!=}{{$\neq$}}2
+          {~>}{{$\hookrightarrow$}}2
+          {|->}{{$\mapsto$}}1
+        },
+escapeinside={(*}{*)},
+alsoletter={?,:, ., !,, [,] \, ,},
+aboveskip=\smallskipamount,
+belowskip=\smallskipamount,
+showstringspaces=false,
+showspaces=false,
+breaklines=true,
+showtabs=false
+}
+\lstnewenvironment{rcodebox}
+{\lstset{upquote=true,xleftmargin=2em,language=Ruby,breaklines=true,numbers=left,stepnumber=1,firstnumber=1,numberfirstline=true, frame=none, numberstyle={\footnotesize\it\color{programs}}}%, alsoletter={:}}
+}
+{}
+\newcommand\rcode{\lstinline[language=Ruby,mathescape,basicstyle=\sffamily\normalsize,breakatwhitespace,xleftmargin=0pt,xrightmargin=0pt]}
+%% END RUBY
+
+% dark mode
+% \pagecolor[rgb]{0,0,0} %black
+% \color[rgb]{0.5,0.5,0.5} %grey
+
+
+%%
+%% end of the preamble, start of the body of the document source.
+\begin{document}
+\linenumbers
+%%
+%% The "title" command has an optional parameter,
+%% allowing the author to define a "short title" to be used in page headers.
+\title{Comparing RNA models for something something}
+
+% \author{Sankha Narayan Guria}
+% % \authornote{with author1 note}          %% \authornote is optional;
+%                                     %% can be repeated if necessary
+% % \orcid{nnnn-nnnn-nnnn-nnnn}             %% \orcid is optional
+% \affiliation{
+% % \position{Position1}
+% % \department{Department of Computer Science}              %% \department is recommended
+% \institution{University of Kansas}            %% \institution is required
+% % \streetaddress{Street1 Address1}
+% \city{Lawrence}
+% \state{Kansas}
+% \postcode{66045}
+% \country{USA}                    %% \country is recommended
+% }
+% \email{sankha@ku.edu}          %% \email is recommended
+
+\author{\IEEEauthorblockN{Bryan Richlinski}
+\IEEEauthorblockA{\textit{University of Kansas} \\
+brichli@ku.edu}
+\and
+\IEEEauthorblockN{Dominic Tassio}
+\IEEEauthorblockA{\textit{University of Kansas} \\
+itsamemario@ku.edu}
+\and
+\IEEEauthorblockN{Joseph Joestar}
+\IEEEauthorblockA{\textit{University of Kansas} \\
+bobsyouruncle@ku.edu}
+}
+
+%%
+%% By default, the full list of authors will be used in the page
+%% headers. Often, this list is too long, and will overlap
+%% other information printed in the page headers. This command allows
+%% the author to define a more concise list
+%% of authors' names for this purpose.
+% \renewcommand{\shortauthors}{Guria et al.}
+
+% DVH:
+
+% Some past approaches require a complete and accurate embedding of the source
+% language in the logic of the underlying solver the synthesis tool uses. This is
+% infeasible for many industrial-grade languages. Other approaches are strongly
+% coupled with the semantics of the source language with purpose-built solvers,
+% but this necessarily ties the synthesis engine to the particular language model
+% used.
+
+% We propose an alternative approach based on user-defined abstract semantics that
+% aims to be both lightweight and language agnostic. The abstract semantics are
+% lightweight to design, simplifying away inconsequential language details, yet
+% effective in guiding the search for programs. The synthesis engine is
+% parameterized by the abstract semantics and independent of the source language.
+% Candidate programs are validated against test cases using the actual concrete
+% language implementation to ensure correctness. Our results demonstrate this is a
+% promising general-purpose approach to synthesis that may broaden the
+% applicability of synthesis to more full-featured languages.
+
+% \maketitle
+\IEEEpeerreviewmaketitle
+
+%%
+%% The abstract is a short summary of the work to be presented in the
+%% article.
+\begin{abstract}
+ results indicate the entropy-ordered enumeration is a promising general-purpose technique to accelerate goal-directed top-down search for program synthesis.
+\end{abstract}  
+
+\section{Introduction}
+\label{sec:intro}
+
+
+\newcommand{\mra}{Multiple Read Alignment}
+\newcommand{\mraabbv}{MRA}
+\newcommand{\smm}{Stochastic Markov Model}
+\newcommand{\smmabbv}{SMM}
+\newcommand{\srg}{Stochastic Regular Grammar}
+\newcommand{\srgabbv}{SRG}
+\newcommand{\sss}{Secondary Structures}
+\newcommand{\sssabbv}{SS}
+\newcommand{\scfg}{Stochastic Context Free Grammar}
+\newcommand{\scfgabbv}{SCFG}
+\newcommand{\rnaf}{RNA families}
+\newcommand{\ged}{Grammatical Edit Distance}
+\newcommand{\gedabbv}{GED}
+
+
+RNA molecules can be grouped into families based on shared characteristics such as structural patterns, sequence similarities, and functional roles. This allows researchers to study them in a more organized and meaningful way.  
+To capture these similarities, a technique known as \mra{} (\mraabbv{}) is often employed, in which several RNA sequences from the same family are aligned together.  
+From this alignment, a model can be constructed that encodes the common features of the family. This model can then be used as a reference to evaluate new RNA reads, providing a measure of how likely it is that a given sequence belongs to the same RNA family.  
+
+The chosen model for representing RNA families has often been a \smm{} (\smmabbv{}), which is capable of describing many RNA molecules in terms of both their raw symbolic strings and certain structural configurations that the molecules can take.  
+This model has the same expressive power as a \srg{} (\srgabbv{}), meaning it can capture a wide range of sequence and structural patterns.  
+However, it is limited in that it cannot represent more complex, long‑range dependencies such as knots.  
+These more intricate configurations are referred to as \sss{} (\sssabbv{}), and they require more powerful modeling techniques to be fully captured.  
+To address this issue, prior research has utilized a \scfg{} (\scfgabbv{}), sometimes also called a probabilistic context free grammar, in order to capture more complex details about RNA \sss{} (\sssabbv{}).  
+
+We hypothesize that \rnaf{} themselves can be examined for similarity.  
+And further, that this similarity can be determined by comparing the similarity of the models used to represent them.  
+The true similarity between \rnaf{} might be characterized in several different ways.  
+We have chosen to measure similarity by two criteria: the amount of overlap in the languages represented by the models, as quantified by similar RNA/probability pairs, and as quantified by shared secondary structure/likelihood pairs.  
+In both cases, what matters is the overlap in the languages that the models are capable of generating. \br{Alternatively we could merely classify the difference purely by the similarity of the grammars, but this gives us no way to align our hypothesis with a real world definition of "similar families"}
+
+As we are primarily concerned with secondary structural properties, we choose to use the latter technique when comparing different \rnaf{}.  
+However, comparing two context free grammars (CFGs) directly is challenging, if not impossible, in the general case.  
+\br{CM's might be more restrictive and bring this back into the realm of possibility.}
+Because of the inherent difficulty of performing direct CFG comparisons, in this paper we instead measure the grammatical edit distance \ged{} (\gedabbv) between the CFGs.  
+We then use libraries of RNA molecules to empirically evaluate the efficacy of this edit distance as a proxy for family similarity.  
+\br{MM's might have a more direct comparison means. If so, we might be able to use this as another empirical ground truth comparator, but it may be challenging to determine if variance is explained by the true difference between the families or because the CFG can capture the knots. Much less if the MM's cover the same families as the SCFG models.}
+
+\section{Overview}
+\label{sec:overview}
+
+
+
+\section{Formalism}
+\label{sec:formalism}
+
+
+\section{Implementation}
+\label{sec:implementation}
+
+
+\section{Evaluation}
+\label{sec:evaluation}
+
+
+\subsection{Discussion}
+
+
+\section{Related Work}
+\label{sec:related-work}
+
+
+\section{Conclusion}
+\label{sec:conlusion}
+
+
+\printbibliography
+
+\end{document}
+\endinput
+%%
+%% End of file `sample-acmsmall-submission.tex'.

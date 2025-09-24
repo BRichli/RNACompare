@@ -20,7 +20,7 @@ Data inspection tool for DNA sequences
 ## Questions for Us
 
 #### 1) What is the constraint that a covariance model places upon a scfg. 
-#### 2) Is a covariance model identical to a Visually Pushdown Automata (IE Can we use work on both?)
+#### 2) Is a covariance model identical to a Visually Pushdown Automata (IE Can we use work on both?) (Bryan)
 #### 3) 
 
 
