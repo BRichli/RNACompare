@@ -269,42 +269,44 @@ bobsyouruncle@ku.edu}
 
 
 \newcommand{\mra}{Multiple Read Alignment}
-\newcommand{\mraabbv}{MRA}
+\newcommand{\mraabv}{MRA}
 \newcommand{\smm}{Stochastic Markov Model}
-\newcommand{\smmabbv}{SMM}
+\newcommand{\smmabv}{SMM}
 \newcommand{\srg}{Stochastic Regular Grammar}
-\newcommand{\srgabbv}{SRG}
+\newcommand{\srgabv}{SRG}
 \newcommand{\sss}{Secondary Structures}
-\newcommand{\sssabbv}{SS}
+\newcommand{\sssabv}{SS}
+\newcommand{\cm}{Covariance Model}
+\newcommand{\cmabv}{CM}
 \newcommand{\scfg}{Stochastic Context Free Grammar}
-\newcommand{\scfgabbv}{SCFG}
+\newcommand{\scfgabv}{SCFG}
 \newcommand{\rnaf}{RNA families}
 \newcommand{\ged}{Grammatical Edit Distance}
-\newcommand{\gedabbv}{GED}
-
+\newcommand{\gedabv}{GED}
+\newcommand{\svpa}{Stochastic Visibly Pushdown Automaton}
+\newcommand{\svpaabv}{SVPA}
+\newcommand{\lo}{log-odds}
+\newcommand{\clique}{clique}
 
 RNA molecules can be grouped into families based on shared characteristics such as structural patterns, sequence similarities, and functional roles. This allows researchers to study them in a more organized and meaningful way.  
-To capture these similarities, a technique known as \mra{} (\mraabbv{}) is often employed, in which several RNA sequences from the same family are aligned together.  
+To capture these similarities, a technique known as \mra{} (\mraabv{}) is often employed, in which several RNA sequences from the same family are aligned together.  
 From this alignment, a model can be constructed that encodes the common features of the family. This model can then be used as a reference to evaluate new RNA reads, providing a measure of how likely it is that a given sequence belongs to the same RNA family.  
 
-The chosen model for representing RNA families has often been a \smm{} (\smmabbv{}), which is capable of describing many RNA molecules in terms of both their raw symbolic strings and certain structural configurations that the molecules can take.  
-This model has the same expressive power as a \srg{} (\srgabbv{}), meaning it can capture a wide range of sequence and structural patterns.  
-However, it is limited in that it cannot represent more complex, long‑range dependencies such as knots.  
-These more intricate configurations are referred to as \sss{} (\sssabbv{}), and they require more powerful modeling techniques to be fully captured.  
-To address this issue, prior research has utilized a \scfg{} (\scfgabbv{}), sometimes also called a probabilistic context free grammar, in order to capture more complex details about RNA \sss{} (\sssabbv{}).  
-
-We hypothesize that \rnaf{} themselves can be examined for similarity.  
-And further, that this similarity can be determined by comparing the similarity of the models used to represent them.  
-The true similarity between \rnaf{} might be characterized in several different ways.  
-We have chosen to measure similarity by two criteria: the amount of overlap in the languages represented by the models, as quantified by similar RNA/probability pairs, and as quantified by shared secondary structure/likelihood pairs.  
-In both cases, what matters is the overlap in the languages that the models are capable of generating. \br{Alternatively we could merely classify the difference purely by the similarity of the grammars, but this gives us no way to align our hypothesis with a real world definition of "similar families"}
+The chosen model for representing RNA families has often been a \smm{} (\smmabv{}), which is capable of describing many RNA molecules in terms of both their raw symbolic strings and certain structural configurations that the molecules can take.  
+This model has the same expressive power as a \srg{} (\srgabv{}), meaning it can capture a wide range of sequence and structural patterns.  
+However, it is limited in that it cannot represent more complex structures.  
+These more intricate configurations are referred to as \sss{} (\sssabv{}), and they require more powerful modeling techniques to be fully captured.  
+To address this issue, a \cm (\cmabv) is often used to model these structures. The \cmabv is a form of restricted \scfg (\scfgabv) which captures a subset of the
+language of nested strings, the same set represented by \svpa (\svpaabv). \br{verify this, it is rather apparent, but still find a source.}
 
 As we are primarily concerned with secondary structural properties, we choose to use the latter technique when comparing different \rnaf{}.  
-However, comparing two context free grammars (CFGs) directly is challenging, if not impossible, in the general case.  
-\br{CM's might be more restrictive and bring this back into the realm of possibility.}
-Because of the inherent difficulty of performing direct CFG comparisons, in this paper we instead measure the grammatical edit distance \ged{} (\gedabbv) between the CFGs.  
-We then use libraries of RNA molecules to empirically evaluate the efficacy of this edit distance as a proxy for family similarity.  
-\br{MM's might have a more direct comparison means. If so, we might be able to use this as another empirical ground truth comparator, but it may be challenging to determine if variance is explained by the true difference between the families or because the CFG can capture the knots. Much less if the MM's cover the same families as the SCFG models.}
+We hypothesize that \rnaf{} themselves can be examined for similarity, by comparing the similarity of the models used to represent them.  
+We propose a modified graph edit distance for examining the similarity of different \cm's which compares both structure and \lo transitions.
+
+We validate our algorithm as faithfully finding the smallest edit distance between two \cm's in \S\arabic{fomralism}. To validate the efficacy of our approach we 
+compare our results to the \clique of RNA families. These \clique s encode how similar families are to each-other based upon empirical evidence. \br{verify the name and purpose of clicks} 
+By comparing the distance between models, to their respective \clique's we infer a cutoff and validate upon a hold out
+set. We present these results in \S\arabic{results}.
 
 \section{Overview}
 \label{sec:overview}
