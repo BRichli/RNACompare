@@ -1,0 +1,47 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\title{Log Likelihood Explainer}
+\author{Bryan Richlinski, with editing by Copilot}
+
+\begin{document}
+\maketitle
+
+\section*{What Likelihood Is}
+
+Likelihood is the probability of observing a particular outcome, assuming a fixed model of how the data is generated.  
+%  
+For example, if we assume a fair coin flip (i.e., each flip has a 0.5 probability of landing heads), then observing two heads in two flips has a likelihood of \( 0.5 \times 0.5 = 0.25 \).  
+%  
+However, if we instead assume that the probability of heads is 0.3, then the likelihood of observing two heads becomes \( 0.3 \times 0.3 = 0.09 \).  
+%
+For \emph{reasons} we say that a Likelyhood of no observation is always 1. 
+%  
+Importantly, this is not the same as the probability of the model given the observation.  
+%  
+That would require prior beliefs about the model itself, which we do not assume.  
+%  
+Confusing these two quantities is known as the prosecutor's fallacy—mistaking \( P(\text{model} \mid \text{data}) \) for \( P(\text{data} \mid \text{model}) \).  
+%  
+
+
+\section*{Log Likelihood}
+
+Log likelihood is simply the likelihood function wrapped in the logarithm function.
+%
+The base of the logarithm is an open question to me right now, but it seems that that decision is often dependent upon the field of study. 
+%
+This transformation has two main advantages.  
+%  
+First, the logarithm is a strictly increasing function, so maximizing the log likelihood is equivalent to maximizing the likelihood itself.  
+%  
+Second, it simplifies arithmetic: ratios of probabilities become differences, \( \log(a/b) = \log a - \log b \), and joint probabilities become sums, \( \log(a \times b) = \log a + \log b \).  
+%  
+This makes optimization and numerical computation much easier.  
+%  
+As well the concept of no observation is much more intuitive, while the likelyhood of not observing something is set to 1, the log likelihood of 1 becomes 0. 
+%  
+
+\end{document}
