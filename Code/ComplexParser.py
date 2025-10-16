@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import List, Dict, Tuple, Optional, Self, TextIO, Set, Callable, TypeVar, ParamSpec, Concatenate, Iterator, Union, Generic
 from copy import copy
+from graphviz import Digraph
 
 
 class State:
@@ -370,13 +371,51 @@ def main():
     # just testing for now
     node = lexer("C:\\Users\\Bryan R\\School\\RNACompare\\RF00360.cm")
     
-    print("root\n\n")
-    print(node)
+
+    states = list(node.states)
 
     for i in node.children:
-        print(i)
-        print("\\\\\\\\\\\\\\\\\\")
+        states += list(i.states)
 
+    states = list(set(states))
+    edges = []
+    nodesin = {}
+    while states:
+        k = states.pop()
+        nodesin[str(k.within.id)] = nodesin.get(str(k.within.id), []) + [str(k.id)]
+
+
+        for ch in k.children: 
+            edges.append((str(k.id),str(ch.id)))
+        
+            if ch.within is not None:
+                nodesin[str(ch.within.id)] = nodesin.get(str(ch.within.id), []) + [str(ch.id)]
+
+
+
+    edges = list(set(edges))
+
+    def render_graph(edges, supers, filename="graph", fmt="png"):
+        dot = Digraph()
+        for u, v in edges:
+            dot.node(str(u))
+            dot.node(str(v))
+            dot.edge(str(u), str(v))
+        
+
+        for key, value in supers.items():
+
+            with dot.subgraph(name=f"cluster_{key}") as c:
+                c.attr(style="rounded", color="lightgrey", label=f"Node {key}")
+                for i in list(set(value)):
+                    
+                    c.node(i)
+                    
+        dot.render(filename, format=fmt, cleanup=True)
+
+    
+
+    render_graph(edges, nodesin)
 
 if __name__ == "__main__":
     main()
