@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import List, Dict, Tuple, Optional, Self, TextIO, Set
+from typing import List, Dict, Tuple, Optional, Self, TextIO, Set, Callable, TypeVar, ParamSpec, Concatenate, Iterator, Union, Generic
+from copy import copy
 
 
 class State:
@@ -18,6 +19,25 @@ class State:
 
     def addNode(self, node: Node) -> None: 
         self.within = node
+
+    def __leq__(self, other: State) -> bool: 
+        return self.id <= other.id
+    
+    def __lt__(self, other: State) -> bool:
+        return self.id < other.id
+    
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, State):
+            return self.id == other.id
+        else:
+            return False
+
+    def __gt__(self, other: State) -> bool: 
+        return self.id > other.id
+
+    def __gte__(self, other: State) -> bool: 
+        return self.id >= other.id
+
 
 
 
@@ -91,7 +111,23 @@ class Node:
     def addChild(self, child: Node) -> None:
         self.children.add(child)
 
+    def __leq__(self, other: Node) -> bool: 
+        return self.id <= other.id
+    
+    def __lt__(self, other: Node) -> bool:
+        return self.id < other.id
+    
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Node):
+            return self.id == other.id
+        else:
+            return False
 
+    def __gt__(self, other: Node) -> bool: 
+        return self.id > other.id
+
+    def __gte__(self, other: Node) -> bool: 
+        return self.id >= other.id
 
 class ROOT(Node): 
     def __init__(self, id: int): 
@@ -136,7 +172,7 @@ def lexer(file: str) -> Node:
                 flag = False
 
         nodelist = []
-        statedict = {}
+        stateDict = {}
         flag = True
         while flag: 
             line = filestream.readline()
@@ -149,21 +185,21 @@ def lexer(file: str) -> Node:
 
                 match type:
                     case "ROOT":
-                        nodelist.append(lexNode(ROOT(id), statedict, filestream))
+                        nodelist.append(lexNode(ROOT(id), stateDict, filestream))
                     case "MATL":
-                        nodelist.append(lexNode(MATL(id), statedict, filestream))
+                        nodelist.append(lexNode(MATL(id), stateDict, filestream))
                     case "MATR":
-                        nodelist.append(lexNode(MATR(id), statedict, filestream))
+                        nodelist.append(lexNode(MATR(id), stateDict, filestream))
                     case "BIF":
-                        nodelist.append(lexNode(BIF(id), statedict, filestream))
+                        nodelist.append(lexNode(BIF(id), stateDict, filestream))
                     case "BEGL":
-                        nodelist.append(lexNode(BEGL(id), statedict, filestream))
+                        nodelist.append(lexNode(BEGL(id), stateDict, filestream))
                     case "END":
-                        nodelist.append(lexNode(END(id), statedict, filestream))
+                        nodelist.append(lexNode(END(id), stateDict, filestream))
                     case "BEGLR":
-                        nodelist.append(lexNode(BEGLR(id), statedict, filestream))
+                        nodelist.append(lexNode(BEGLR(id), stateDict, filestream))
                     case "MATP":
-                        nodelist.append(lexNode(MATP(id), statedict, filestream))
+                        nodelist.append(lexNode(MATP(id), stateDict, filestream))
                     case _:
                         raise LexError(f"Un-defined node type: {type} for node: #{id}")
                     
@@ -183,9 +219,9 @@ def lexer(file: str) -> Node:
                     
 
 
-def lexNode(node: Node, statedict: Dict[int, State], filestream: TextIO) -> Node: 
+def lexNode(node: Node, stateDict: Dict[int, State], filestream: TextIO) -> Node: 
     #adding states
-    statelist = []
+    stateList = []
     for _ in range(node.num_state):
         line = filestream.readline()
         tokens = [token for token in line.strip().split() if token ]   
@@ -219,12 +255,73 @@ def lexNode(node: Node, statedict: Dict[int, State], filestream: TextIO) -> Node
                 raise LexError(f"Un-defined state type: #{type} for node: #{id}")
         
         state.addNode(node)
-        statedict[id] = state
+        stateDict[id] = state
         for item in parents:
             #linking states we can rely on the assumption that all states are listed in order. as specified by the infernal documentation
-            state.addParent(statedict[item])
-            statedict[item].addChildren(state)
+            state.addParent(stateDict[item])
+            stateDict[item].addChildren(state)
 
         node.addState(state)
     
     return node
+
+T = TypeVar("T")
+J = TypeVar("J")
+
+class NodeTraverse(Generic[T]): 
+
+    def __init__(self, visitorFn: Callable[[Node], Iterator[T]], prefix: Optional[bool] = True, root: Optional[Node] = None) -> None: 
+         
+        self.visitorFn = visitorFn
+        self.prefix = prefix
+        self.root = root
+        self.currentNode = None
+        self.stack: List[Node] = []
+        self.innerIter: Union[Iterator[T], None] = None
+
+    def set_graph(self, root: Node) -> None:
+        self.root = root
+    
+    def __iter__(self) -> NodeTraverse:
+        if self.root is None: 
+            raise ValueError ("No Graph Supplied for Iteration")
+        self.currentNode = self.root
+        self.stack.append(self.root)
+        return self
+
+    
+    def __next__(self) -> T:
+ 
+        while True: # because this is a DAG we don't have to worry about infinite recursion
+            if self.innerIter is not None: 
+                try:
+                    return next(self.innerIter)
+                except StopIteration:
+                    self.innerIter = None
+
+            if not self.stack:
+                raise StopIteration
+            
+            self.currentNode = self.stack.pop(-1)
+            self.stack += sorted(self.currentNode.children)
+            self.innerIter = self.visitorFn(self.currentNode)
+        
+
+
+    
+
+class StateTraverse(Generic[J]): 
+
+    def __init__(self, visitorFn: Callable[[State], J],stateList: List[State]) -> None: 
+
+        self.visitorFn = visitorFn
+        self.stateList = sorted(stateList)
+
+    def __iter__(self) -> StateTraverse:
+        self.it = iter(self.stateList)
+        return self
+    
+    def __next__(self) -> J:
+        
+        i = next(self.it)
+        return self.visitorFn(i)
