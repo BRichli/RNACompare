@@ -20,6 +20,9 @@ class State:
     def addNode(self, node: Node) -> None: 
         self.within = node
 
+    def __hash__(self) -> int:
+        return self.id
+
     def __leq__(self, other: State) -> bool: 
         return self.id <= other.id
     
@@ -37,7 +40,14 @@ class State:
 
     def __gte__(self, other: State) -> bool: 
         return self.id >= other.id
-
+    
+    def __str__(self) -> str:
+        return f"State: {self.type}, ID: {self.id}, Parents: {[i.__repr__() for i in self.parents]}\n \
+        Children: {[i.__repr__() for i in self.children]}\n \
+        Winthin: {self.within.__repr__()}"
+    
+    def __repr__(self) -> str:
+        return f"{self.type}({self.id})"
 
 
 
@@ -77,6 +87,10 @@ class E(State):
     def __init__(self, id: int) -> None: 
         super().__init__(id, "E")
 
+class NONE(State):
+    def __init__(self) -> None:
+        super().__init__(-1, "NONE")
+
 
 
 class StructureError(Exception):
@@ -100,16 +114,19 @@ class Node:
         self.parents: Set[Node] = set()
         self.children: Set[Node] = set()
 
-    def addState(self, states: State) -> None: 
+    def addState(self, state: State) -> None: 
         if len(self.states) >= self.num_state:
             raise StructureError(f"Too Many States in Node: {self.id}, expected: {self.num_state}")
-        self.states.add(states)
+        self.states.add(state)
 
     def addParent(self, parent: Node) -> None:
         self.parents.add(parent)
 
     def addChild(self, child: Node) -> None:
         self.children.add(child)
+
+    def __hash__(self) -> int:
+        return self.id
 
     def __leq__(self, other: Node) -> bool: 
         return self.id <= other.id
@@ -128,6 +145,17 @@ class Node:
 
     def __gte__(self, other: Node) -> bool: 
         return self.id >= other.id
+    
+    def __str__(self) -> str:
+        return f"Node: {self.type}, ID: {self.id}, Parents: {[i.__repr__() for i in self.parents]}\n \
+        Children: {[i.__repr__() for i in self.children]}\n \
+        Contains: {[i.__repr__() for i in self.states]}"
+    
+    def __repr__(self) -> str:
+        return f"{self.type}({self.id})"
+
+
+
 
 class ROOT(Node): 
     def __init__(self, id: int): 
@@ -163,6 +191,8 @@ class MATP(Node):
 
 
 
+
+
 def lexer(file: str) -> Node: 
     with open(file, 'r') as filestream: 
         flag = True
@@ -175,11 +205,12 @@ def lexer(file: str) -> Node:
         stateDict = {}
         flag = True
         while flag: 
-            line = filestream.readline()
-            if not line:
+            line = filestream.readline().strip()
+            if line == "//":
                 flag = False
             else:
-                tokens = [token for token in line.strip().split() if token ]
+                tokens = [token for token in line.split() if token ]
+                
                 type = tokens[1]
                 id = int(tokens[2])
 
@@ -202,10 +233,11 @@ def lexer(file: str) -> Node:
                         nodelist.append(lexNode(MATP(id), stateDict, filestream))
                     case _:
                         raise LexError(f"Un-defined node type: {type} for node: #{id}")
-                    
+        # done lexing file
+
+
         for node in nodelist: 
-            # linking nodes
-            # nodes are not listed in order
+            # linking nodes nodes are not listed in order
             for state in node.states:
                 for child in state.children: 
                     if child.within != node: 
@@ -221,16 +253,16 @@ def lexer(file: str) -> Node:
 
 def lexNode(node: Node, stateDict: Dict[int, State], filestream: TextIO) -> Node: 
     #adding states
-    stateList = []
     for _ in range(node.num_state):
         line = filestream.readline()
         tokens = [token for token in line.strip().split() if token ]   
         type = tokens[0]
         id = int(tokens[1])
 
+        
         parents = []
         if int(tokens[2]) != -1: 
-          parents = list(range(int(tokens[2])-int(tokens[3]), int(tokens[2]) + 1))
+          parents = list(range(int(tokens[2])-int(tokens[3]) + 1, int(tokens[2]) + 1))
 
         match type:
             case "MP": 
@@ -258,8 +290,19 @@ def lexNode(node: Node, stateDict: Dict[int, State], filestream: TextIO) -> Node
         stateDict[id] = state
         for item in parents:
             #linking states we can rely on the assumption that all states are listed in order. as specified by the infernal documentation
-            state.addParent(stateDict[item])
+            try:
+              state.addParent(stateDict[item])
+            except KeyError as e:
+                if e.args[0] == -1:
+                    print(f"error: {e} for ")
+                    print(id)
+                    print(parents)
+                    break
+                else:
+                    raise e
+            
             stateDict[item].addChildren(state)
+            
 
         node.addState(state)
     
@@ -306,10 +349,6 @@ class NodeTraverse(Generic[T]):
             self.stack += sorted(self.currentNode.children)
             self.innerIter = self.visitorFn(self.currentNode)
         
-
-
-    
-
 class StateTraverse(Generic[J]): 
 
     def __init__(self, visitorFn: Callable[[State], J],stateList: List[State]) -> None: 
@@ -325,3 +364,19 @@ class StateTraverse(Generic[J]):
         
         i = next(self.it)
         return self.visitorFn(i)
+    
+
+def main():
+    # just testing for now
+    node = lexer("C:\\Users\\Bryan R\\School\\RNACompare\\RF00360.cm")
+    
+    print("root\n\n")
+    print(node)
+
+    for i in node.children:
+        print(i)
+        print("\\\\\\\\\\\\\\\\\\")
+
+
+if __name__ == "__main__":
+    main()
