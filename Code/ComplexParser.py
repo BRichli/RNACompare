@@ -376,6 +376,7 @@ def main():
 
     for i in node.children:
         states += list(i.states)
+    
 
     states = list(set(states))
     edges = []
@@ -392,7 +393,7 @@ def main():
                 nodesin[str(ch.within.id)] = nodesin.get(str(ch.within.id), []) + [str(ch.id)]
 
 
-
+    
     edges = list(set(edges))
 
     def render_graph(edges, supers, filename="graph", fmt="png"):
