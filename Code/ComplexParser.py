@@ -10,7 +10,8 @@ class State:
         self.id: int =  id
         self.parents: Set[State] = set()
         self.children: Set[State] = set()
-        self.within: Optional[Node] = None 
+        self.within: Optional[Node] = None
+        
 
     def addParent(self, parents: State) -> None: 
         self.parents.add(parents)
@@ -45,7 +46,7 @@ class State:
     def __str__(self) -> str:
         return f"State: {self.type}, ID: {self.id}, Parents: {[i.__repr__() for i in self.parents]}\n \
         Children: {[i.__repr__() for i in self.children]}\n \
-        Winthin: {self.within.__repr__()}"
+        Within: {self.within.__repr__()}"
     
     def __repr__(self) -> str:
         return f"{self.type}({self.id})"
@@ -311,17 +312,20 @@ def lexNode(node: Node, stateDict: Dict[int, State], filestream: TextIO) -> Node
 
 T = TypeVar("T")
 J = TypeVar("J")
+M = TypeVar("M")
+
+
 
 class NodeTraverse(Generic[T]): 
 
-    def __init__(self, visitorFn: Callable[[Node], Iterator[T]], prefix: Optional[bool] = True, root: Optional[Node] = None) -> None: 
+    
+    def __init__(self, visitorFn: Callable[[Node], T], *,  prefix: Optional[bool] = True, root: Optional[Node] = None) -> None: 
          
         self.visitorFn = visitorFn
         self.prefix = prefix
         self.root = root
         self.currentNode = None
         self.stack: List[Node] = []
-        self.innerIter: Union[Iterator[T], None] = None
 
     def set_graph(self, root: Node) -> None:
         self.root = root
@@ -335,21 +339,17 @@ class NodeTraverse(Generic[T]):
 
     
     def __next__(self) -> T:
- 
-        while True: # because this is a DAG we don't have to worry about infinite recursion
-            if self.innerIter is not None: 
-                try:
-                    return next(self.innerIter)
-                except StopIteration:
-                    self.innerIter = None
-
-            if not self.stack:
-                raise StopIteration
-            
-            self.currentNode = self.stack.pop(-1)
-            self.stack += sorted(self.currentNode.children)
-            self.innerIter = self.visitorFn(self.currentNode)
         
+
+        while self.stack: # because this is a DAG we don't have to worry about infinite recursion
+            
+            self.currentNode = self.stack.pop(-1) #prepare to look at next node
+            self.stack += sorted(self.currentNode.children) #put all of it's children on the stack
+            return self.visitorFn(self.currentNode) #process the next node. 
+            
+        raise StopIteration
+    
+
 class StateTraverse(Generic[J]): 
 
     def __init__(self, visitorFn: Callable[[State], J],stateList: List[State]) -> None: 
@@ -363,40 +363,43 @@ class StateTraverse(Generic[J]):
     
     def __next__(self) -> J:
         
-        i = next(self.it)
+        i = next(self.it)   # this is not an acyclic graph so we cant put anything else on the list to traverse. 
         return self.visitorFn(i)
     
 
-def main():
-    # just testing for now
-    node = lexer("C:\\Users\\Bryan R\\School\\RNACompare\\RF00360.cm")
+def testNodeTraverse(node) -> None: 
+    listofnodes = {}
+    def nodeVisitor(n: Node) -> Dict[Node, str]:
+        listofnodes[n] = n.type
+        return listofnodes
+
+    traversal = NodeTraverse(nodeVisitor, root = node)
+    traversal = traversal.__iter__()
+    for x in traversal: 
+        pass
+
+    print(listofnodes)
+
+
+def testStateTraverse(node) -> None:
+
+
+    listofStates = []
+
+    def stateVisitor(s: State) -> List[Tuple[int, int]]:
+        for i in s.children: 
+            listofStates.append((s.id, i.id))
+        return listofStates
     
+    traversal = StateTraverse(stateVisitor, node.states)
+    traversal = traversal.__iter__()
 
-    states = list(node.states)
+    for i in traversal:
+        pass
 
-    for i in node.children:
-        states += list(i.states)
-    
+    print(listofStates)
 
-    states = list(set(states))
-    edges = []
-    nodesin = {}
-    while states:
-        k = states.pop()
-        nodesin[str(k.within.id)] = nodesin.get(str(k.within.id), []) + [str(k.id)]
-
-
-        for ch in k.children: 
-            edges.append((str(k.id),str(ch.id)))
-        
-            if ch.within is not None:
-                nodesin[str(ch.within.id)] = nodesin.get(str(ch.within.id), []) + [str(ch.id)]
-
-
-    
-    edges = list(set(edges))
-
-    def render_graph(edges, supers, filename="graph", fmt="png"):
+def render_graph(edges, supers, filename="graph", fmt="png"):
         dot = Digraph()
         for u, v in edges:
             dot.node(str(u))
@@ -413,6 +416,41 @@ def main():
                     c.node(i)
                     
         dot.render(filename, format=fmt, cleanup=True)
+
+
+def main():
+    # just testing for now
+    node = lexer("C:\\Users\\Bryan R\\School\\RNACompare\\RF00360.cm")
+    #testNodeTraverse(node)
+    testStateTraverse(node)
+
+    print("HERE")
+    states = list(node.states)
+
+    for i in node.children:
+        states += list(i.states)
+    
+
+    states = list(set(states))
+    edges = []
+    nodesin = {}
+    while states:
+        k = states.pop()
+        if k.within is not None:
+            nodesin[str(k.within.id)] = nodesin.get(str(k.within.id), []) + [str(k.id)]
+
+
+        for ch in k.children: 
+            edges.append((str(k.id),str(ch.id)))
+        
+            if ch.within is not None:
+                nodesin[str(ch.within.id)] = nodesin.get(str(ch.within.id), []) + [str(ch.id)]
+
+
+    
+    edges = list(set(edges))
+
+    
 
     
 
