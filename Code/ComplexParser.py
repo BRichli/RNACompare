@@ -193,7 +193,7 @@ class BEGL(Node):
 
 class BEGR(Node):
     def __init__(self, id: int):
-        super().__init__(id, "BEGR", 1)
+        super().__init__(id, "BEGR", 2)
 
 
 class END(Node):
@@ -252,7 +252,7 @@ def lexer(file: str) -> Node:
                     case "MATP":
                         nodelist.append(lexNode(MATP(id), stateDict, filestream))
                     case _:
-                        raise LexError(f"Un-defined node type: {type} for node: #{id}")
+                        raise LexError(f"Un-defined node type: {type} for node: {id}")
         # done lexing file
 
         for node in nodelist:
