@@ -354,7 +354,6 @@ class NodeTraverse(Generic[T]):
     def __iter__(self) -> NodeTraverse:
         if self.root is None:
             raise ValueError("No Graph Supplied for Iteration")
-        self.currentNode = self.root
         self.stack.append(self.root)
         return self
 
@@ -419,18 +418,18 @@ def testStateTraverse(node) -> None:
     print(listofStates)
 
 
-def render_graph(edges, supers, filename="graph", fmt="png"):
+def render_graph(edges, filename="graph", fmt="png"):
     dot = Digraph()
     for u, v in edges:
         dot.node(str(u))
         dot.node(str(v))
         dot.edge(str(u), str(v))
 
-    for key, value in supers.items():
-        with dot.subgraph(name=f"cluster_{key}") as c:
-            c.attr(style="rounded", color="lightgrey", label=f"Node {key}")
-            for i in list(set(value)):
-                c.node(i)
+    # for key, value in supers.items():
+    #     with dot.subgraph(name=f"cluster_{key}") as c:
+    #         c.attr(style="rounded", color="lightgrey", label=f"Node {key}")
+    #         for i in list(set(value)):
+    #             c.node(i)
 
     dot.render(filename, format=fmt, cleanup=True)
 
@@ -440,33 +439,49 @@ def main():
 
     # just testing for now
     node = lexer(sys.argv[1])
-    # testNodeTraverse(node)
-    testStateTraverse(node)
 
-    states = list(node.states)
-
-    for i in node.children:
-        states += list(i.states)
-
-    states = list(set(states))
     edges = []
-    nodesin = {}
-    while states:
-        k = states.pop()
-        if k.within is not None:
-            nodesin[str(k.within.id)] = nodesin.get(str(k.within.id), []) + [str(k.id)]
 
-        for ch in k.children:
-            edges.append((str(k.id), str(ch.id)))
+    def whistle(n):
+        for i in n.children:
+            edges.append((str(n.id), str(i.id)))
+        return None
 
-            if ch.within is not None:
-                nodesin[str(ch.within.id)] = nodesin.get(str(ch.within.id), []) + [
-                    str(ch.id)
-                ]
+    traveler = NodeTraverse(whistle, root=node)
+    traveler = traveler.__iter__()
 
-    edges = list(set(edges))
+    for i in traveler:
+        pass
 
-    render_graph(edges, nodesin)
+    render_graph(edges)
+
+    # testNodeTraverse(node)
+    # testStateTraverse(node)
+
+    # states = list(node.states)
+
+    # for i in node.children:
+    #     states += list(i.states)
+
+    # states = list(set(states))
+    # edges = []
+    # nodesin = {}
+    # while states:
+    #     k = states.pop()
+    #     if k.within is not None:
+    #         nodesin[str(k.within.id)] = nodesin.get(str(k.within.id), []) + [str(k.id)]
+
+    #     for ch in k.children:
+    #         edges.append((str(k.id), str(ch.id)))
+
+    #         if ch.within is not None:
+    #             nodesin[str(ch.within.id)] = nodesin.get(str(ch.within.id), []) + [
+    #                 str(ch.id)
+    #             ]
+
+    # edges = list(set(edges))
+
+    # render_graph(edges, nodesin)
 
 
 if __name__ == "__main__":

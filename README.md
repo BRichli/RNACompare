@@ -95,7 +95,7 @@ end function
 this candidate requires a preorder traversal index of both trees, then it requires a order preserving mapping between the two trees (think galois but not quite). 
 
 More code 
-
+```
 function tree-edit-distance(Two input trees  ̄x and  ̄y, a pseudo-metric c.)
 m ←| ̄x|, n ←| ̄y|.
 d ←m ×n matrix of zeros. ⊲ di,j = dc( ̄xi,  ̄yj ).
@@ -131,3 +131,4 @@ end for
 
 return d1,1.
 end function
+```
