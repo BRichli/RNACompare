@@ -96,7 +96,7 @@ this candidate requires a preorder traversal index of both trees, then it requir
 
 More code 
 
- ̄function tree-edit-distance(Two input trees  ̄x and  ̄y, a pseudo-metric c.)
+function tree-edit-distance(Two input trees  ̄x and  ̄y, a pseudo-metric c.)
 m ←| ̄x|, n ←| ̄y|.
 d ←m ×n matrix of zeros. ⊲ di,j = dc( ̄xi,  ̄yj ).
 D ←(m + 1) ×(n + 1) matrix of zeros.

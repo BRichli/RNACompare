@@ -1,6 +1,5 @@
 from __future__ import annotations
-from typing import List, Dict, Tuple, Optional, Self, TextIO, Set, Callable, TypeVar, ParamSpec, Concatenate, Iterator, Union, Generic
-from copy import copy
+from typing import List, Dict, Tuple, Optional, TextIO, Set, Callable, TypeVar,  Generic
 from graphviz import Digraph
 
 
@@ -424,7 +423,6 @@ def main():
     #testNodeTraverse(node)
     testStateTraverse(node)
 
-    print("HERE")
     states = list(node.states)
 
     for i in node.children:
