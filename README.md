@@ -94,3 +94,40 @@ end function
 
 this candidate requires a preorder traversal index of both trees, then it requires a order preserving mapping between the two trees (think galois but not quite). 
 
+More code 
+
+ ̄function tree-edit-distance(Two input trees  ̄x and  ̄y, a pseudo-metric c.)
+m ←| ̄x|, n ←| ̄y|.
+d ←m ×n matrix of zeros. ⊲ di,j = dc( ̄xi,  ̄yj ).
+D ←(m + 1) ×(n + 1) matrix of zeros.
+⊲ Di,j = Dc(X[i, r ̄x(k)], Y [j, r ̄y (l)]).
+for k ←m, . . . , 1 do
+for l ←n, . . . , 1 do
+DrX (k)+1,rY (l)+1 ←0. ⊲ equation 20
+for i ←rX (k), . . . , k do
+Di,rY (l)+1 ←Di+1,rY (l)+1 + c(xi, −). ⊲ equation 21
+end for
+
+for j ←rY (l), . . . , l do
+DrX (k)+1,j ←DrX (k)+1,j+1 + c(−, yj). ⊲ equation 22
+end for
+
+for i ←rX (k), . . . , k do
+for j ←rY (l), . . . , l do
+if r ̄x(i) = r ̄x(k) ∧r ̄y(j) = r ̄y(l) then
+Di,j ←min{Di+1,j + c(xi, −),
+Di,j+1 + c(−, yj),
+Di+1,j+1 + c(xi, yj )}. ⊲ equation 16
+di,j ←Di,j .
+else
+Di,j ←min{Di+1,j + c(xi, −),
+Di,j+1 + c(−, yj),
+Dr ̄x(i)+1,r ̄y(j)+1 + di,j }. ⊲ equation 15
+end if
+end for
+end for
+end for
+end for
+
+return d1,1.
+end function
