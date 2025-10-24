@@ -439,21 +439,16 @@ def main():
 
     # just testing for now
     node = lexer(sys.argv[1])
-
     edges = []
 
-    def whistle(n):
-        for i in n.children:
-            edges.append((str(n.id), str(i.id)))
-        return None
+    def ditto(n):
+        for j in n.children:
+            edges.append((n.id, j.id))
 
-    traveler = NodeTraverse(whistle, root=node)
-    traveler = traveler.__iter__()
+    traveler = NodeTraverse(ditto, root=node)
 
     for i in traveler:
         pass
-
-    render_graph(edges)
 
     # testNodeTraverse(node)
     # testStateTraverse(node)
@@ -481,7 +476,7 @@ def main():
 
     # edges = list(set(edges))
 
-    # render_graph(edges, nodesin)
+    render_graph(edges)
 
 
 if __name__ == "__main__":
