@@ -115,6 +115,14 @@ class LexError(Exception):
 
 
 class Node:
+    @staticmethod
+    def get_children(node: Node) -> List[Node]:
+        return list(node.children)
+
+    @staticmethod
+    def get_label(node: Node) -> str:
+        return node.type
+
     def __init__(self, id: int, type: str, num_states) -> None:
         self.id: int = id
         self.type: str = type
