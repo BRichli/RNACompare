@@ -3,6 +3,9 @@ from typing import List, Dict, Tuple, Optional, TextIO, Set, Callable, TypeVar, 
 from graphviz import Digraph
 
 
+# ======================State Class
+
+
 class State:
     def __init__(self, id: int, type: str) -> None:
         self.type: str = type
@@ -10,6 +13,13 @@ class State:
         self.parents: Set[State] = set()
         self.children: Set[State] = set()
         self.within: Optional[Node] = None
+        self.expLen: int = -1
+
+    def getExpLen(self) -> int:
+        return self.expLen
+
+    def setExpLen(self, len: int) -> None:
+        self.expLen = len
 
     def addParent(self, parents: State) -> None:
         self.parents.add(parents)
@@ -44,7 +54,8 @@ class State:
     def __str__(self) -> str:
         return f"State: {self.type}, ID: {self.id}, Parents: {[i.__repr__() for i in self.parents]}\n \
         Children: {[i.__repr__() for i in self.children]}\n \
-        Within: {self.within.__repr__()}"
+        Within: {self.within.__repr__()}\n \
+        ExpLen: {self.expLen}"
 
     def __repr__(self) -> str:
         return f"{self.type}({self.id})"
@@ -100,6 +111,9 @@ class NONE(State):
         super().__init__(-1, "NONE")
 
 
+#### ==================Errors====================
+
+
 class StructureError(Exception):
     """Custom exception raised for structural issues in the graph."""
 
@@ -112,6 +126,9 @@ class LexError(Exception):
 
     def __init__(self, message: str = "A structural graph error has occurred ") -> None:
         super().__init__(message)
+
+
+##===================Node Classes=================
 
 
 class Node:
@@ -130,6 +147,19 @@ class Node:
         self.states: Set[State] = set()
         self.parents: Set[Node] = set()
         self.children: Set[Node] = set()
+        self.expLen: int = -1
+
+    def getSelf(self) -> Node:
+        return self
+
+    def getId(self) -> int:
+        return self.id
+
+    def getExpLen(self) -> int:
+        return self.expLen
+
+    def setExpLen(self, len: int) -> None:
+        self.expLen = len
 
     def addState(self, state: State) -> None:
         if len(self.states) >= self.num_state:
@@ -168,7 +198,8 @@ class Node:
     def __str__(self) -> str:
         return f"Node: {self.type}, ID: {self.id}, Parents: {[i.__repr__() for i in self.parents]}\n \
         Children: {[i.__repr__() for i in self.children]}\n \
-        Contains: {[i.__repr__() for i in self.states]}"
+        Contains: {[i.__repr__() for i in self.states]}\n \
+        ExpLen: {self.expLen}"
 
     def __repr__(self) -> str:
         return f"{self.type}({self.id})"
@@ -219,6 +250,9 @@ class MATP(Node):
         super().__init__(id, "MATP", 6)
 
 
+# =====================Lexers
+
+
 def lexer(file: str) -> Node:
     with open(file, "r") as filestream:
         flag = True
@@ -264,14 +298,18 @@ def lexer(file: str) -> Node:
         # done lexing file
 
         for node in nodelist:
+            tempLen = 0
             # linking nodes nodes are not listed in order
             for state in node.states:
+                tempLen += state.expLen
                 for child in state.children:
                     if child.within != node:
                         node.addChild(child.within)
                 for parent in state.parents:
                     if parent.within != node:
                         node.addParent(parent.within)
+
+            node.setExpLen(tempLen)
 
         # at this point all states and all nodes should be linked.
     return nodelist[
@@ -281,6 +319,7 @@ def lexer(file: str) -> Node:
 
 def lexNode(node: Node, stateDict: Dict[int, State], filestream: TextIO) -> Node:
     # adding states
+
     for _ in range(node.num_state):
         line = filestream.readline()
         tokens = [token for token in line.strip().split() if token]
@@ -292,6 +331,8 @@ def lexNode(node: Node, stateDict: Dict[int, State], filestream: TextIO) -> Node
             parents = list(
                 range(int(tokens[2]) - int(tokens[3]) + 1, int(tokens[2]) + 1)
             )
+
+        expLen = int(tokens[6])
 
         match type:
             case "MP":
@@ -315,6 +356,7 @@ def lexNode(node: Node, stateDict: Dict[int, State], filestream: TextIO) -> Node
             case _:
                 raise LexError(f"Un-defined state type: #{type} for node: #{id}")
 
+        state.setExpLen(expLen)  # adding in the expected length
         state.addNode(node)
         stateDict[id] = state
         for item in parents:
@@ -336,6 +378,8 @@ def lexNode(node: Node, stateDict: Dict[int, State], filestream: TextIO) -> Node
 
     return node
 
+
+# =======================TraversalMechanisms=================
 
 T = TypeVar("T")
 J = TypeVar("J")
@@ -394,6 +438,9 @@ class StateTraverse(Generic[J]):
         return self.visitorFn(i)
 
 
+# =========================Tests
+
+
 def testNodeTraverse(node) -> None:
     listofnodes = {}
 
@@ -426,6 +473,9 @@ def testStateTraverse(node) -> None:
     print(listofStates)
 
 
+###=====================Graph Renderer==================
+
+
 def render_graph(edges, filename="graph", fmt="png"):
     dot = Digraph()
     for u, v in edges:
@@ -440,6 +490,9 @@ def render_graph(edges, filename="graph", fmt="png"):
     #             c.node(i)
 
     dot.render(filename, format=fmt, cleanup=True)
+
+
+# ========================Main
 
 
 def main():

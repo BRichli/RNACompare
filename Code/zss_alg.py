@@ -1,14 +1,22 @@
 import zss
 import ComplexParser
-from typing import List, Dict, Tuple, Optional, TextIO, Set, Callable, TypeVar, Generic
 import sys
 
 
-def id_dist(a, b) -> int:
-    if a == b:
+def id_dist_basic(a, b) -> int:
+    """Uses node labels as proxy for node distance"""
+    if a.get_label() == b.get_label():
         return 0
     else:
         return 1
+
+
+def id_dist_expLen(a, b) -> int:
+    """Uses naive expected length of sequence as proxy for node distance"""
+    if a.getId() == b.getId():
+        return abs(a.getExpLen() - b.getExpLen())
+    else:
+        return 100
 
 
 def main():
@@ -19,8 +27,8 @@ def main():
         tree1,
         tree2,
         ComplexParser.Node.get_children,
-        ComplexParser.Node.get_label,
-        id_dist,
+        ComplexParser.Node.getSelf,
+        id_dist_expLen,
     )
 
     print("distance")
