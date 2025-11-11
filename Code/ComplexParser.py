@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import List, Dict, Tuple, Optional, TextIO, Set, Callable, TypeVar, Generic
 from graphviz import Digraph
+from pathlib import Path
 
 
 # ======================State Class
@@ -253,7 +254,7 @@ class MATP(Node):
 # =====================Lexers
 
 
-def lexer(file: str) -> Node:
+def lexer(file: str | Path) -> Node:
     with open(file, "r") as filestream:
         flag = True
         while flag:
