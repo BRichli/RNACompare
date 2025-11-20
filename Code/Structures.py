@@ -108,13 +108,13 @@ class State:
         self.id: int = id
         self.parents: Dict[State, float] = {}
         self.children: Dict[Union[State, int], float] = {}
-        self.emissions: List[float] = []
+        self.emissions: Dict[str, float] = {}
         self.within: Optional[Node] = None
         self.expLen: int = -1
         self.num_emissions: int = num_emissions
 
     def addEmissions(self, ems) -> None:
-        self.emissions = ems
+        self.emissions = {}
 
     def getExpLen(self) -> int:
         return self.expLen

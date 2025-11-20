@@ -51,6 +51,9 @@ class MATP(Node):
         super().__init__(id, "MATP", 6)
 
 
+#################################################STATES
+
+
 class DUMMYb(State):
     # A dummy begin state for truncating the HMM's within the Node
     def __init__(self) -> None:
@@ -67,25 +70,77 @@ class MP(State):
     def __init__(self, id: int) -> None:
         super().__init__(id, "MP", 16)
 
+    def addEmissions(self, ems) -> None:
+        l = [
+            "AA",
+            "AC",
+            "AG",
+            "AU",
+            "CA",
+            "CC",
+            "CG",
+            "CU",
+            "GA",
+            "GC",
+            "GG",
+            "GU",
+            "UA",
+            "UC",
+            "UG",
+            "UU",
+        ]
+        ems = np.exp(ems)
+        s = sum(ems)
+        ems = map(lambda x: x / s, ems)
+        self.emissions = {rna: prob for rna, prob in zip(l, ems)}
+
 
 class ML(State):
     def __init__(self, id: int) -> None:
         super().__init__(id, "ML", 4)
+
+    def addEmissions(self, ems) -> None:
+        l = ["A", "C", "G", "U"]
+        ems = np.exp(ems)
+        s = sum(ems)
+        ems = map(lambda x: x / s, ems)
+        self.emissions = {rna: prob for rna, prob in zip(l, ems)}
 
 
 class MR(State):
     def __init__(self, id: int) -> None:
         super().__init__(id, "MR", 4)
 
+    def addEmissions(self, ems) -> None:
+        l = ["A", "C", "G", "U"]
+        ems = np.exp(ems)
+        s = sum(ems)
+        ems = map(lambda x: x / s, ems)
+        self.emissions = {rna: prob for rna, prob in zip(l, ems)}
+
 
 class IL(State):
     def __init__(self, id: int) -> None:
         super().__init__(id, "IL", 4)
 
+    def addEmissions(self, ems) -> None:
+        l = ["A", "C", "G", "U"]
+        ems = np.exp(ems)
+        s = sum(ems)
+        ems = map(lambda x: x / s, ems)
+        self.emissions = {rna: prob for rna, prob in zip(l, ems)}
+
 
 class IR(State):
     def __init__(self, id: int) -> None:
         super().__init__(id, "IR", 4)
+
+    def addEmissions(self, ems) -> None:
+        l = ["A", "C", "G", "U"]
+        ems = np.exp(ems)
+        s = sum(ems)
+        ems = map(lambda x: x / s, ems)
+        self.emissions = {rna: prob for rna, prob in zip(l, ems)}
 
 
 class D(State):
