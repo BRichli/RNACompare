@@ -4,306 +4,19 @@ from graphviz import Digraph
 from pathlib import Path
 import numpy as np
 import numpy.typing as npt
-
-
-# ======================State Class
-
-
-class State:
-    def __init__(self, id: int, type: str, num_emissions: int) -> None:
-        self.type: str = type
-        self.id: int = id
-        self.parents: List[State] = []
-        self.children: List[State] = []
-        self.transitions: Dict[int, float] = {}
-        self.emissions: List[float] = []
-        self.within: Optional[Node] = None
-        self.expLen: int = -1
-        self.num_emissions: int = num_emissions
-        self.transitions_from: Dict[State, float] = {}
-        self.transitions_to: Dict[State, float] = {}
-
-    def normalize(self) -> None:
-        self.parents = sorted(list(set(self.parents)))
-        self.children = sorted(list(set(self.children)))
-
-    def addTransitions(self, children: List[int], prob: List[float]) -> None:
-        # print(f"State:{self.id} has transitions to :{children}, with prob: #{prob}")
-        self.transitions = {c: p for c, p in zip(children, prob)}
-
-    def addTransitionTo(self, child: State) -> None:
-        self.transitions_to[child] = self.transitions[child.id]
-
-    def addTransitionFrom(self, parent: State, prob: float) -> None:
-        self.transitions_from[parent] = prob
-
-    def addEmissions(self, ems) -> None:
-        self.emissions = ems
-
-    def getExpLen(self) -> int:
-        return self.expLen
-
-    def setExpLen(self, len: int) -> None:
-        self.expLen = len
-
-    def addParent(self, parents: State) -> None:
-        self.parents.append(parents)
-
-    def addChildren(self, children: State) -> None:
-        self.children.append(children)
-
-    def addNode(self, node: Node) -> None:
-        self.within = node
-
-    def __hash__(self) -> int:
-        try:
-            x = self.id
-        except Exception as e:
-            print(f"EXCEPTION HERE: {e}")
-            raise e
-        return self.id
-
-    def __leq__(self, other: State) -> bool:
-        return self.id <= other.id
-
-    def __lt__(self, other: State) -> bool:
-        return self.id < other.id
-
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, State):
-            return self.id == other.id
-        else:
-            return False
-
-    def __gt__(self, other: State) -> bool:
-        return self.id > other.id
-
-    def __gte__(self, other: State) -> bool:
-        return self.id >= other.id
-
-    def __str__(self) -> str:
-        return f"State: {self.type}, ID: {self.id}, Parents: {[i.__repr__() for i in self.parents]}\n \
-        Children: {[i.__repr__() for i in self.children]}\n \
-        Within: {self.within.__repr__()}\n \
-        ExpLen: {self.expLen}"
-
-    def __repr__(self) -> str:
-        return f"{self.type}({self.id})"
-
-
-class DUMMYb(State):
-    # A dummy begin state for truncating the HMM's within the Node
-    def __init__(self) -> None:
-        super().__init__(-3, "DUMMYB", 0)
-
-
-class DUMMYe(State):
-    # A dummy end state for truncating the HMM's within the Node
-    def __init__(self) -> None:
-        super().__init__(-2, "DUMMYe", 0)
-
-
-class MP(State):
-    def __init__(self, id: int) -> None:
-        super().__init__(id, "MP", 16)
-
-
-class ML(State):
-    def __init__(self, id: int) -> None:
-        super().__init__(id, "ML", 4)
-
-
-class MR(State):
-    def __init__(self, id: int) -> None:
-        super().__init__(id, "MR", 4)
-
-
-class IL(State):
-    def __init__(self, id: int) -> None:
-        super().__init__(id, "IL", 4)
-
-
-class IR(State):
-    def __init__(self, id: int) -> None:
-        super().__init__(id, "IR", 4)
-
-
-class D(State):
-    def __init__(self, id: int) -> None:
-        super().__init__(id, "D", 0)
-
-
-class B(State):
-    def __init__(self, id: int) -> None:
-        super().__init__(id, "B", 0)
-
-    def addTransitions(self, children: List[int], prob: List[float]) -> None:
-        self.transitions[children[0]] = 0.0
-        self.transitions[children[-1]] = 0.0
-
-
-class S(State):
-    def __init__(self, id: int) -> None:
-        super().__init__(id, "S", 0)
-
-
-class E(State):
-    def __init__(self, id: int) -> None:
-        super().__init__(id, "E", 0)
-
-
-class NONE(State):
-    def __init__(self) -> None:
-        super().__init__(-1, "NONE", 0)
-
-
-#### ==================Errors====================
-
-
-class StructureError(Exception):
-    """Custom exception raised for structural issues in the graph."""
-
-    def __init__(self, message: str = "A structural graph error has occurred ") -> None:
-        super().__init__(message)
-
-
-class LexError(Exception):
-    """Custom exception raised for structural issues in the graph."""
-
-    def __init__(self, message: str = "A structural graph error has occurred ") -> None:
-        super().__init__(message)
-
-
-##===================Node Classes=================
-
-
-class Node:
-    @staticmethod
-    def get_children(node: Node) -> List[Node]:
-        return list(node.children)
-
-    @staticmethod
-    def get_label(node: Node) -> str:
-        return node.type
-
-    @staticmethod
-    def getSelf(node: Node) -> Node:
-        return node
-
-    def __init__(self, id: int, type: str, num_states) -> None:
-        self.id: int = id
-        self.type: str = type
-        self.num_state: int = num_states
-        self.states: List[State] = []
-        self.parents: List[Node] = []
-        self.children: List[Node] = []
-        self.expLen: int = -1
-        self.transition_matrix: npt.NDArray[np.float64] = np.array([0])
-
-    def normalize(self) -> None:
-        self.states = sorted(list(set(self.states)))
-        self.parents = sorted(list(set(self.parents)))
-        self.children = sorted(list(set(self.children)))
-
-    def getId(self) -> int:
-        return self.id
-
-    def getExpLen(self) -> int:
-        return self.expLen
-
-    def setExpLen(self, len: int) -> None:
-        self.expLen = len
-
-    def addState(self, state: State) -> None:
-        if len(self.states) >= self.num_state:
-            raise StructureError(
-                f"Too Many States in Node: {self.id}, expected: {self.num_state}"
-            )
-        self.states.append(state)
-
-    def addParent(self, parent: Node) -> None:
-        self.parents.append(parent)
-
-    def addChild(self, child: Node) -> None:
-        self.children.append(child)
-
-    def __hash__(self) -> int:
-        return self.id
-
-    def __leq__(self, other: Node) -> bool:
-        return self.id <= other.id
-
-    def __lt__(self, other: Node) -> bool:
-        return self.id < other.id
-
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, Node):
-            return self.id == other.id
-        else:
-            return False
-
-    def __gt__(self, other: Node) -> bool:
-        return self.id > other.id
-
-    def __gte__(self, other: Node) -> bool:
-        return self.id >= other.id
-
-    def __str__(self) -> str:
-        return f"Node: {self.type}, ID: {self.id}, Parents: {[i.__repr__() for i in self.parents]}\n \
-        Children: {[i.__repr__() for i in self.children]}\n \
-        Contains: {[i.__repr__() for i in self.states]}\n \
-        ExpLen: {self.expLen}"
-
-    def __repr__(self) -> str:
-        return f"{self.type}({self.id})"
-
-
-class ROOT(Node):
-    def __init__(self, id: int):
-        super().__init__(id, "ROOT", 3)
-
-
-class MATL(Node):
-    def __init__(self, id: int):
-        super().__init__(id, "MATL", 3)
-
-
-class MATR(Node):
-    def __init__(self, id: int):
-        super().__init__(id, "MATR", 3)
-
-
-class BIF(Node):
-    def __init__(self, id: int):
-        super().__init__(id, "BIF", 1)
-
-
-class BEGL(Node):
-    def __init__(self, id: int):
-        super().__init__(id, "BEGL", 1)
-
-
-class BEGR(Node):
-    def __init__(self, id: int):
-        super().__init__(id, "BEGR", 2)
-
-
-class END(Node):
-    def __init__(self, id: int):
-        super().__init__(id, "END", 1)
-
-
-class BEGLR(Node):
-    def __init__(self, id: int):
-        super().__init__(id, "BEGLR", 2)
-
-
-class MATP(Node):
-    def __init__(self, id: int):
-        super().__init__(id, "MATP", 6)
+from Structures import *
+from Errors import *
+from SubStructures import *
+from TraversalMechanisms import *
 
 
 # +++++++++++++++++++++Markov
+def normalize_logs(val: float, list: List[float]) -> np.float64:
+    x = sum(map(np.exp, list))
+    if x == 0.0:
+        return np.float64(0.0)
+    else:
+        return np.float64(np.exp(val) / x)
 
 
 def extractMatrix(node: Node) -> npt.NDArray[np.float64]:
@@ -314,38 +27,53 @@ def extractMatrix(node: Node) -> npt.NDArray[np.float64]:
     indexmap = {states[a].id: a + 1 for a in range(len(states))}
     default_to = size + 1
     arr = np.full(
-        (size + 2, size + 2), 1.0
+        (size + 2, size + 2), 0.0
     )  # initialize a 3d array where the first 2d slice represents the transition probabilities.
 
-    if node.id == 2:
-        print("here")
-    outmatrix = {x: 0.0 for x in indexmap.values()}
-    inmatrix = {x: 0.0 for x in indexmap.values()}
+    outmatrix = {x: np.float64(0.0) for x in indexmap.values()}
+    inmatrix = {x: np.float64(0.0) for x in indexmap.values()}
     for s in states:
         id = indexmap[s.id]
 
-        for par, freq in s.transitions_from.items():
+        for par, freq in s.parents.items():
             if par.id in sids:
                 parid = indexmap[par.id]
-                arr[id, parid] = freq
+                arr[id, parid] = np.exp(freq)
             else:
-                inmatrix[id] += freq
+                inmatrix[id] += normalize_logs(freq, list(par.children.values()))
 
-        for ch, freq in s.transitions_to.items():
-            if ch.id in sids:
+        for ch, freq in s.children.items():
+            if isinstance(ch, State) and ch.id in sids:
                 chid = indexmap[ch.id]
-                arr[id, chid] = freq
+                arr[id, chid] = np.exp(freq)
             else:
-                outmatrix[id] += freq
+                outmatrix[id] += normalize_logs(freq, list(s.children.values()))
 
     for ind, val in outmatrix.items():
         arr[ind, default_to] = val
     for ind, val in inmatrix.items():
         arr[0, ind] = val
-    arr[default_to, default_to] = 0.0
+    arr[default_to, default_to] = 1.0
     # need to figure out transition emission probabilities
 
+    row_sums = arr.sum(axis=1, keepdims=True)
+    row_sums[row_sums == 0] = 1.0
+    arr = arr / row_sums
+
     return arr
+
+
+def logprobs_to_probs(probs):
+    # Mask impossible transitions
+    probs[probs == 1.0] = -np.inf  # sentinel
+
+    # Exponentiate valid log-probs
+    probs = np.exp(probs)
+
+    # Reset impossible transitions to 0
+    probs[np.isinf(probs)] = 0.0
+
+    return probs
 
 
 # =====================Lexers
@@ -400,13 +128,19 @@ def lexer(file: str | Path) -> Node:
             # linking nodes nodes are not listed in order
             for state in node.states:
                 tempLen += state.expLen
-                for child in state.children:
-                    if child.within != node:
-                        node.addChild(child.within)
-                for parent in state.parents:
+                for child in state.children.keys():
+                    try:
+                        if child.within != node:
+                            node.addChild(child.within)
+                    except Exception as e:
+                        print(e)
+                        print(f"state: #{state}")
+                        print(f"child: {child}")
+                        stateDict[state]
+                        print("\n<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>\n")
+                for parent in state.parents.keys():
                     if parent.within != node:
                         node.addParent(parent.within)
-                state.normalize()
 
             node.setExpLen(tempLen)
             node.normalize()
@@ -439,7 +173,7 @@ def lexNode(node: Node, stateDict: Dict[int, State], filestream: TextIO) -> Node
         transitions = [
             0.0 if x == "*" else float(x) for x in tokens[10:end_Transitions]
         ]
-        children = list(range(int(tokens[4]), int(tokens[4]) + int(tokens[5]) + 1))
+        children = list(range(int(tokens[4]), int(tokens[4]) + int(tokens[5])))
 
         match type:
             case "MP":
@@ -471,7 +205,7 @@ def lexNode(node: Node, stateDict: Dict[int, State], filestream: TextIO) -> Node
                 state = D(id)
             case "B":
                 state = B(id)
-                children = [children[0], children[-1] - children[0]]
+                children = [children[0], children[-1] - children[0] + 1]
                 transitions = [0.0, 0.0]
             case "S":
                 state = S(id)
@@ -482,8 +216,7 @@ def lexNode(node: Node, stateDict: Dict[int, State], filestream: TextIO) -> Node
 
         state.setExpLen(expLen)  # adding in the expected length
         state.addNode(node)
-
-        state.addTransitions(children, transitions)
+        state.addChildrenBulk({ch: tr for ch, tr in zip(children, transitions)})
 
         stateDict[id] = state
 
@@ -501,112 +234,9 @@ def lexNode(node: Node, stateDict: Dict[int, State], filestream: TextIO) -> Node
                 else:
                     raise e
 
-            stateDict[item].addChildren(state)
-            stateDict[item].addTransitionTo(state)
-            state.addTransitionFrom(
-                stateDict[item], stateDict[item].transitions_to[state]
-            )
-
         node.addState(state)
 
     return node
-
-
-# =======================TraversalMechanisms=================
-
-T = TypeVar("T")
-J = TypeVar("J")
-M = TypeVar("M")
-
-
-class NodeTraverse(Generic[T]):
-    def __init__(
-        self,
-        visitorFn: Callable[[Node], T],
-        *,
-        prefix: Optional[bool] = True,
-        root: Optional[Node] = None,
-    ) -> None:
-        self.visitorFn = visitorFn
-        self.prefix = prefix
-        self.root = root
-        self.currentNode = None
-        self.stack: List[Node] = []
-
-    def set_graph(self, root: Node) -> None:
-        self.root = root
-
-    def __iter__(self) -> NodeTraverse:
-        if self.root is None:
-            raise ValueError("No Graph Supplied for Iteration")
-        self.stack.append(self.root)
-        return self
-
-    def __next__(self) -> T:
-        while (
-            self.stack
-        ):  # because this is a DAG we don't have to worry about infinite recursion
-            self.currentNode = self.stack.pop(-1)  # prepare to look at next node
-            self.stack += sorted(
-                self.currentNode.children
-            )  # put all of it's children on the stack
-            return self.visitorFn(self.currentNode)  # process the next node.
-
-        raise StopIteration
-
-
-class StateTraverse(Generic[J]):
-    def __init__(self, visitorFn: Callable[[State], J], stateList: List[State]) -> None:
-        self.visitorFn = visitorFn
-        self.stateList = sorted(stateList)
-
-    def __iter__(self) -> StateTraverse:
-        self.it = iter(self.stateList)
-        return self
-
-    def __next__(self) -> J:
-        i = next(
-            self.it
-        )  # this is not an acyclic graph so we cant put anything else on the list to traverse.
-        return self.visitorFn(i)
-
-
-# =========================Tests
-
-
-def testNodeTraverse(node) -> None:
-    listofnodes = {}
-
-    def nodeVisitor(n: Node) -> Dict[Node, str]:
-        listofnodes[n] = n.type
-        return listofnodes
-
-    traversal = NodeTraverse(nodeVisitor, root=node)
-    traversal = traversal.__iter__()
-    for x in traversal:
-        pass
-
-    print(listofnodes)
-
-
-def testStateTraverse(node) -> None:
-    listofStates = []
-
-    def stateVisitor(s: State) -> List[Tuple[int, int]]:
-        for i in s.children:
-            listofStates.append((s.id, i.id))
-        return listofStates
-
-    traversal = StateTraverse(stateVisitor, node.states)
-    traversal = traversal.__iter__()
-
-    for i in traversal:
-        pass
-
-    print(listofStates)
-
-
-###=====================Graph Renderer==================
 
 
 def render_graph(edges, filename="graph", fmt="png"):
@@ -635,43 +265,18 @@ def main():
     node = lexer(sys.argv[1])
 
     # edges = []
+    np.set_printoptions(precision=30, suppress=True)
 
     def findnode(n):
         if n.id == 6:
-            print(n.transition_matrix)
+            print("\n")
+            print(["E"] + n.states + ["EX"])
+            print(n.transition_matrix[0, :])
 
     traveler = NodeTraverse(findnode, root=node)
 
     for i in traveler:
         pass
-
-    # testNodeTraverse(node)
-    # testStateTraverse(node)
-
-    # states = list(node.states)
-
-    # for i in node.children:
-    #     states += list(i.states)
-
-    # states = list(set(states))
-    # edges = []
-    # nodesin = {}
-    # while states:
-    #     k = states.pop()
-    #     if k.within is not None:
-    #         nodesin[str(k.within.id)] = nodesin.get(str(k.within.id), []) + [str(k.id)]
-
-    #     for ch in k.children:
-    #         edges.append((str(k.id), str(ch.id)))
-
-    #         if ch.within is not None:
-    #             nodesin[str(ch.within.id)] = nodesin.get(str(ch.within.id), []) + [
-    #                 str(ch.id)
-    #             ]
-
-    # edges = list(set(edges))
-
-    # render_graph(edges)
 
 
 if __name__ == "__main__":
