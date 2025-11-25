@@ -50,6 +50,9 @@ class Node:
         self.reduced_emissions: npt.NDArray[np.float64] = np.array([0])
         self.distance_from_dict = {}
 
+    def clear_distances(self):
+        self.distance_from_dict = {}
+
     def extract_emission_matrix(self):
         self.emission_matrix = np.array(
             [e for e in map(lambda x: list(x.emissions.values()), sorted(self.states))]
