@@ -27,11 +27,11 @@ def emission_distance(a, b):
 
 
 def insert_cost(a):
-    return a.compare_to_other(b)
+    return a.compare_to_empty()
 
 
 def remove_cost(a):
-    return a.compare_to_other(b)
+    return a.compare_to_empty()
 
 
 def update_cost(a, b):

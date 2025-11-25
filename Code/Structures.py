@@ -58,20 +58,24 @@ class Node:
             [e for e in map(lambda x: list(x.emissions.values()), sorted(self.states))]
         )
 
+    def compare_to_empty(self):
+        return self.emission_prob([20, 20])
+
     def compare_to_other(self, other):
         if self.distance_from_dict.get(other, None) is not None:
             return self.distance_from_dict
 
-        if (
-            self.kind == "END"
-            or self.kind == "BIF"
-            or other.kind == "END"
-            or other.kind == "BIF"
-        ):
+        if self.kind == "END" or self.kind == "BIF":
             if other.kind == self.kind:
                 return 0.0
             else:
-                return 100.0
+                return other.compare_to_empty()
+
+        if other.kind == "END" or other.kind == "BIF":
+            if other.kind == self.kind:
+                return 0.0
+            else:
+                return self.compare_to_empty()
 
         other_strings = other.emitted_strings
 
