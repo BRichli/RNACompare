@@ -48,11 +48,55 @@ class Node:
         self.model = None
         self.reduced_transitions: npt.NDArray[np.float64] = np.array([0])
         self.reduced_emissions: npt.NDArray[np.float64] = np.array([0])
+        self.distance_from_dict = {}
 
     def extract_emission_matrix(self):
         self.emission_matrix = np.array(
             [e for e in map(lambda x: list(x.emissions.values()), sorted(self.states))]
         )
+
+    def compare_to_other(self, other):
+        if self.distance_from_dict.get(other, None) is not None:
+            return self.distance_from_dict
+
+        if (
+            self.kind == "END"
+            or self.kind == "BIF"
+            or other.kind == "END"
+            or other.kind == "BIF"
+        ):
+            if other.kind == self.kind:
+                return 1.0
+            else:
+                return 0.0
+
+        other_strings = other.emitted_strings
+
+        our_probs_their_strings = zip(
+            map(lambda x: self.emission_prob(x[0]), other_strings),
+            [x[1] for x in other_strings],
+        )
+        logs = list(
+            map(
+                lambda x, y: np.log(x / (y + 0.0001)),
+                our_probs_their_strings,
+            )
+        )
+        their_probs_our_strings = zip(
+            [x[1] for x in self.emitted_strings],
+            map(lambda x: self.emission_prob(x[0]), self.emitted_strings),
+        )
+        logs += list(
+            map(
+                lambda x, y: np.log(x / (y + 0.0001)),
+                their_probs_our_strings,
+            )
+        )
+
+        average = sum(logs) / len(logs)
+        self.distance_from_dict[other] = average
+        other.distance_from_dict[self] = average
+        return average
 
     def normalize(self) -> None:
         self.states = sorted(list(set(self.states)))
@@ -106,7 +150,7 @@ class Node:
         if self.kind == "BIF" or self.kind == "END":
             return 0.0
         # try:
-        return self.model.score(string)
+        return np.exp(self.model.score(string))
         # except Exception as e:
         #     print(e)
         #     print(self)
