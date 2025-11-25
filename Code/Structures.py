@@ -62,18 +62,23 @@ class Node:
         return self.emission_prob(np.array([[20], [20]]))
 
     def compare_to_other(self, other):
+        magic_default = 5.0
         if self.distance_from_dict.get(other, None) is not None:
             return self.distance_from_dict[other]
 
         if self.kind == "END" or self.kind == "BIF":
             if other.kind == self.kind:
                 return 0.0
+            elif other.kind == "END" or other.kind == "BIF":
+                return magic_default
             else:
                 return other.compare_to_empty()
 
         if other.kind == "END" or other.kind == "BIF":
             if other.kind == self.kind:
                 return 0.0
+            elif self.kind == "END" or self.kind == "BIF":
+                return magic_default
             else:
                 return self.compare_to_empty()
 
