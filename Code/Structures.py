@@ -63,7 +63,7 @@ class Node:
 
     def compare_to_other(self, other):
         if self.distance_from_dict.get(other, None) is not None:
-            return self.distance_from_dict
+            return self.distance_from_dict[other]
 
         if self.kind == "END" or self.kind == "BIF":
             if other.kind == self.kind:
@@ -78,28 +78,33 @@ class Node:
                 return self.compare_to_empty()
 
         other_strings = other.emitted_strings
+        with np.errstate(divide="ignore", invalid="ignore"):
+            our_probs_their_strings = list(
+                zip(
+                    map(lambda x: self.emission_prob(x[0]), other_strings),
+                    [x[1] for x in other_strings],
+                )
+            )
 
-        our_probs_their_strings = zip(
-            map(lambda x: self.emission_prob(x[0]), other_strings),
-            [x[1] for x in other_strings],
-        )
-        for i in our_probs_their_strings:
-        logs = list(
-            map(
-                lambda x: np.log(x[0] / (x[1] + 0.0001)),
-                our_probs_their_strings,
+            logs = list(
+                map(
+                    lambda x: np.log(x[0] / (x[1] + 0.1)),
+                    our_probs_their_strings,
+                )
             )
-        )
-        their_probs_our_strings = zip(
-            [x[1] for x in self.emitted_strings],
-            map(lambda x: self.emission_prob(x[0]), self.emitted_strings),
-        )
-        logs += list(
-            map(
-                lambda x: np.log(x[0] / (x[1] + 0.0001)),
-                their_probs_our_strings,
+
+            their_probs_our_strings = list(
+                zip(
+                    [x[1] for x in self.emitted_strings],
+                    map(lambda x: self.emission_prob(x[0]), self.emitted_strings),
+                )
             )
-        )
+            logs += list(
+                map(
+                    lambda x: np.log(x[0] / (x[1] + 0.1)),
+                    their_probs_our_strings,
+                )
+            )
 
         average = sum(logs) / len(logs)
         average = -average
