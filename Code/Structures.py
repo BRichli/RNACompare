@@ -71,7 +71,7 @@ class Node:
             if other.kind == self.kind:
                 return 0.0
             else:
-                return -100.0
+                return 100.0
 
         other_strings = other.emitted_strings
 
@@ -97,6 +97,7 @@ class Node:
         )
 
         average = sum(logs) / len(logs)
+        average = -average
         self.distance_from_dict[other] = average
         other.distance_from_dict[self] = average
         return average

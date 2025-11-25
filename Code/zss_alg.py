@@ -27,19 +27,19 @@ def emission_distance(a, b):
 
 
 def insert_cost(a):
-    return a.expLen
+    return a.compare_to_other(b)
 
 
 def remove_cost(a):
-    return a.expLen
+    return a.compare_to_other(b)
 
 
 def update_cost(a, b):
-    return abs(a.expLen - b.expLen)
+    return a.compare_to_other(b)
 
 
 def naive_size_dist(tree1, tree2):
-    return zss.distance(
+    x = zss.distance(
         tree1,
         tree2,
         ComplexParser.Node.get_children,
@@ -47,6 +47,9 @@ def naive_size_dist(tree1, tree2):
         remove_cost,
         update_cost,
     )
+    tree1.clear_distances()
+    tree2.clear_distances()
+    return x
 
 
 def main():

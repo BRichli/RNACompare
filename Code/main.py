@@ -1,16 +1,15 @@
 import csv
-import math
-from itertools import combinations, product
+from itertools import product
 from pathlib import Path
 
-from tqdm import tqdm
 from tqdm.contrib.concurrent import process_map
 from zss import simple_distance
 
 import ComplexParser
-import zss_alg
 from ComplexParser import Node
-from zss_alg import emission_distance, naive_size_dist
+import zss_alg
+from zss_alg import naive_size_dist
+
 
 type Model = tuple[str, str, Node]
 
@@ -41,7 +40,7 @@ def f(models: tuple[Model, Model]):
             #     Node.getSelf,
             #     zss_alg.id_dist_basic,
             # ),
-            emission_distance(models[0][2], models[1][2]),
+            naive_size_dist(models[0][2], models[1][2]),
         )
     except Exception as e:
         e.add_note(f"{'/'.join(models[0][:2])} and {'/'.join(models[1][:2])}")
@@ -57,7 +56,7 @@ def main():
         resultswriter.writerow(["clan1", "family1", "clan2", "family2", "distance"])
 
         results = []
-        for i in tqdm(combinations(models, 2), total=math.comb(len(models), 2)):
+        for i in product(models, models):
             try:
                 results.append(f(i))
             except Exception as e:
