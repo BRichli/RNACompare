@@ -22,6 +22,10 @@ def id_dist_expLen(a, b) -> int:
         return 100
 
 
+def emission_distance(a, b):
+    return a.compare_to_other(b)
+
+
 def insert_cost(a):
     return a.expLen
 

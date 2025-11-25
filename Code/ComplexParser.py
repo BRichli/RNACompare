@@ -177,7 +177,8 @@ def lexer(file: str | Path) -> Node:
             node.transition_matrix = extractMatrix(node)
             node.extract_emission_matrix()
             node.make_model()
-            node.generate_strings(4)  # magic number
+            magic_number_strings_to_generate = 3
+            node.generate_strings(magic_number_strings_to_generate)  # magic number
 
         # at this point all states and all nodes should be linked.
     return nodelist[
@@ -305,18 +306,34 @@ def main():
         if n.id == 6:
             return n
 
-    x = node
+    node1 = node
     traveler = NodeTraverse(findnode, root=node)
     for i in traveler:
         if i is not None:
-            x = i
+            node1 = i
             break
 
+    def findnode(n):
+        if n.id == 12:
+            return n
+
+    node2 = node
+
+    traveler = NodeTraverse(findnode, root=node)
+    for i in traveler:
+        if i is not None:
+            node2 = i
+            break
+
+    number = node1.compare_to_other(node2)
+    print("NUMBER")
+
+    print(number)
     # x.make_model()
 
     # x.generate_strings(4)
 
-    for y in x.emitted_strings:
+    for y in node1.emitted_strings:
         print(y)
 
     # from pomegranate.hmm import DenseHMM, SparseHMM

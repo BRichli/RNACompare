@@ -66,9 +66,9 @@ class Node:
             or other.kind == "BIF"
         ):
             if other.kind == self.kind:
-                return 1.0
-            else:
                 return 0.0
+            else:
+                return -100.0
 
         other_strings = other.emitted_strings
 
@@ -78,7 +78,7 @@ class Node:
         )
         logs = list(
             map(
-                lambda x, y: np.log(x / (y + 0.0001)),
+                lambda x: np.log(x[0] / (x[1] + 0.0001)),
                 our_probs_their_strings,
             )
         )
@@ -88,7 +88,7 @@ class Node:
         )
         logs += list(
             map(
-                lambda x, y: np.log(x / (y + 0.0001)),
+                lambda x: np.log(x[0] / (x[1] + 0.0001)),
                 their_probs_our_strings,
             )
         )
@@ -105,6 +105,8 @@ class Node:
 
     def make_model(self):
         if self.model is not None:
+            return
+        if self.kind == "END" or self.kind == "BIF":
             return
 
         if self.kind != "ROOT":
@@ -123,11 +125,7 @@ class Node:
                 )
             )
             emissions[0, -1] = 1.0
-        # if self.kind == "END":
-        #     print("transitions")
-        #     print(self.transition_matrix)
-        #     print("\nemissions")
-        #     print(self.emission_matrix)
+
         transitions, emissions = removeSilent.normalize_and_remove(
             self.transition_matrix, emissions
         )

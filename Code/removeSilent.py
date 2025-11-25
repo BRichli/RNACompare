@@ -18,6 +18,7 @@ def removeSilent(arr: npt.NDArray[np.float64], row: int) -> npt.NDArray[np.float
 
 def normalize(items: npt.NDArray[np.float64], remove: int) -> npt.NDArray[np.float64]:
     s = sum(items) - items[remove]
+
     probs = items / s
     probs[-1] += 1.0 - probs.sum()
     return probs

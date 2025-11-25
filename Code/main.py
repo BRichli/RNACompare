@@ -3,7 +3,7 @@ from itertools import product
 from pathlib import Path
 
 from tqdm.contrib.concurrent import process_map
-from zss import simple_distance
+from zss import simple_distance, emission_distance
 
 import ComplexParser
 from ComplexParser import Node
@@ -40,7 +40,7 @@ def f(models: tuple[Model, Model]):
             #     Node.getSelf,
             #     zss_alg.id_dist_basic,
             # ),
-            naive_size_dist(models[0][2], models[1][2]),
+            emission_distance(models[0][2], models[1][2]),
         )
     except Exception as e:
         e.add_note(f"{'/'.join(models[0][:2])} and {'/'.join(models[1][:2])}")
