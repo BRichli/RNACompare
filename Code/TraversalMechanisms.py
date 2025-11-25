@@ -75,7 +75,7 @@ def testNodeTraverse(node) -> None:
     listofnodes = {}
 
     def nodeVisitor(n: Node) -> Dict[Node, str]:
-        listofnodes[n] = n.type
+        listofnodes[n] = n.kind
         return listofnodes
 
     traversal = NodeTraverse(nodeVisitor, root=node)

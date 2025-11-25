@@ -26,7 +26,7 @@ class Node:
 
     @staticmethod
     def get_label(node: Node) -> str:
-        return node.type
+        return node.kind
 
     @staticmethod
     def getSelf(node: Node) -> Node:
@@ -34,7 +34,7 @@ class Node:
 
     def __init__(self, id: int, type: str, num_states) -> None:
         self.id: int = id
-        self.type: str = type
+        self.kind: str = type
         self.num_state: int = num_states
         self.states: List[State] = []
         self.parents: List[Node] = []
@@ -46,6 +46,8 @@ class Node:
         self.emission_matrix: npt.NDArray[np.float64] = np.array([0])
         self.emitted_strings = []
         self.model = None
+        self.reduced_transitions: npt.NDArray[np.float64] = np.array([0])
+        self.reduced_emissions: npt.NDArray[np.float64] = np.array([0])
 
     def extract_emission_matrix(self):
         self.emission_matrix = np.array(
@@ -61,16 +63,38 @@ class Node:
         if self.model is not None:
             return
 
-        emissions = np.vstack(
-            (
-                np.array([0.0 for _ in range(20)] + [1.0]),
-                self.emission_matrix,
-                np.array([0.0 for _ in range(20)] + [1.0]),
+        if self.kind != "ROOT":
+            emissions = np.vstack(
+                (
+                    np.array([0.0 for _ in range(20)] + [1.0]),
+                    self.emission_matrix,
+                    np.array([0.0 for _ in range(20)] + [1.0]),
+                )
             )
-        )
+        else:
+            emissions = np.vstack(
+                (
+                    self.emission_matrix,
+                    np.array([0.0 for _ in range(20)] + [1.0]),
+                )
+            )
+            emissions[0, -1] = 1.0
+        # if self.kind == "END":
+        #     print("transitions")
+        #     print(self.transition_matrix)
+        #     print("\nemissions")
+        #     print(self.emission_matrix)
         transitions, emissions = removeSilent.normalize_and_remove(
             self.transition_matrix, emissions
         )
+
+        self.reduced_emissions = emissions
+        self.reduced_transitions = transitions
+        # if self.kind == "END":
+        #     print("transitions")
+        #     print(transitions)
+        #     print("\nemissions")
+        #     print(emissions)
         size = np.shape(transitions)[0]
         model = hmm.CategoricalHMM(n_components=len(transitions[0, :]))
         model.startprob_ = np.array([1.0] + [0.0 for _ in range(size - 1)])
@@ -79,9 +103,25 @@ class Node:
         self.model = model
 
     def emission_prob(self, string):
+        if self.kind == "BIF" or self.kind == "END":
+            return 0.0
+        # try:
         return self.model.score(string)
+        # except Exception as e:
+        #     print(e)
+        #     print(self)
+        #     print("original emissions")
+        #     print(self.emission_matrix)
+        #     print("emissions")
+        #     print(self.reduced_emissions)
+        #     print("other emissions")
+        #     for i in self.states:
+        #         print(i.emissions)
+        #     raise Exception
 
     def generate_strings(self, num_string):
+        if self.kind == "BIF" or self.kind == "END":
+            return
         if len(self.emitted_strings) >= num_string:
             return
         numtomake = num_string - len(self.emitted_strings)
@@ -91,14 +131,26 @@ class Node:
             symbol = ""
             state = np.random.choice(self.model.n_components, p=self.model.startprob_)
             while symbol != magic_dummy:
+                # try:
                 state = np.random.choice(
                     self.model.n_components, p=self.model.transmat_[state]
                 )
                 symbol = np.random.choice(
-                    self.model.emissionprob_.shape[1], p=self.model.emissionprob_[state]
+                    self.model.emissionprob_.shape[1],
+                    p=self.model.emissionprob_[state],
                 )
                 if symbol != magic_dummy:
                     symbol_string.append(symbol)
+                # except Exception as e:
+                #     print("original emissions")
+                #     print(list(map(lambda x: sum(x), self.emission_matrix)))
+                #     print("self")
+                #     print(self)
+                #     print("actual emissions\n\n")
+                #     print(self.emission_matrix)
+                #     print("\n\n\n")
+                #     raise Exception
+
             symbol_string.append(20)
             symbol_string = np.array(symbol_string)
             symbol_string = symbol_string.reshape(1, -1)
@@ -150,13 +202,13 @@ class Node:
         return self.id >= other.id
 
     def __str__(self) -> str:
-        return f"Node: {self.type}, ID: {self.id}, Parents: {[i.__repr__() for i in self.parents]}\n \
+        return f"Node: {self.kind}, ID: {self.id}, Parents: {[i.__repr__() for i in self.parents]}\n \
         Children: {[i.__repr__() for i in self.children]}\n \
         Contains: {[i.__repr__() for i in self.states]}\n \
         ExpLen: {self.expLen}"
 
     def __repr__(self) -> str:
-        return f"{self.type}({self.id})"
+        return f"{self.kind}({self.id})"
 
 
 #################################################STATE
@@ -164,7 +216,7 @@ class Node:
 
 class State:
     def __init__(self, id: int, type: str, num_emissions: int) -> None:
-        self.type: str = type
+        self.kind: str = type
         self.id: int = id
         self.parents: Dict[State, float] = {}
         self.children: Dict[Union[State, int], float] = {}
@@ -246,10 +298,10 @@ class State:
         return self.id >= other.id
 
     def __str__(self) -> str:
-        return f"State: {self.type}, ID: {self.id}, Parents: {[i.__repr__() for i in self.parents]}\n \
+        return f"State: {self.kind}, ID: {self.id}, Parents: {[i.__repr__() for i in self.parents]}\n \
         Children: {[i.__repr__() for i in self.children]}\n \
         Within: {self.within.__repr__()}\n \
         ExpLen: {self.expLen}"
 
     def __repr__(self) -> str:
-        return f"{self.type}({self.id})"
+        return f"{self.kind}({self.id})"

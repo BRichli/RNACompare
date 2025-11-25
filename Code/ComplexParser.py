@@ -58,9 +58,9 @@ def extractMatrix(node: Node) -> npt.NDArray[np.float64]:
 
     outmatrix = {x: np.float64(0.0) for x in indexmap.values()}
     inmatrix = {x: np.float64(0.0) for x in indexmap.values()}
+
     for s in states:
         id = indexmap[s.id]
-
         for par, freq in s.parents.items():
             if par.id in sids:
                 parid = indexmap[par.id]
@@ -80,11 +80,21 @@ def extractMatrix(node: Node) -> npt.NDArray[np.float64]:
     for ind, val in inmatrix.items():
         arr[0, ind] = val
     arr[default_to, default_to] = 1.0
+
     # need to figure out transition emission probabilities
+    if node.kind == "ROOT":
+        # print("ROOT")
+        # print(arr)
+        arr = arr[1:, 1:]
+        # print("new arr")
+        # print(arr)
 
     row_sums = arr.sum(axis=1, keepdims=True)
     row_sums[row_sums == 0] = 1.0
     arr = arr / row_sums
+    # if node.kind == "ROOT":
+    #     row_sums = arr.sum(axis=1, keepdims=True)
+    #     print(row_sums)
 
     return arr
 
