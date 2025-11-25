@@ -59,7 +59,7 @@ class Node:
         )
 
     def compare_to_empty(self):
-        return self.emission_prob([20, 20])
+        return self.emission_prob(np.array([[20], [20]]))
 
     def compare_to_other(self, other):
         if self.distance_from_dict.get(other, None) is not None:
@@ -83,6 +83,7 @@ class Node:
             map(lambda x: self.emission_prob(x[0]), other_strings),
             [x[1] for x in other_strings],
         )
+        for i in our_probs_their_strings:
         logs = list(
             map(
                 lambda x: np.log(x[0] / (x[1] + 0.0001)),
@@ -155,19 +156,21 @@ class Node:
     def emission_prob(self, string):
         if self.kind == "BIF" or self.kind == "END":
             return 0.0
-        # try:
-        return np.exp(self.model.score(string))
-        # except Exception as e:
-        #     print(e)
-        #     print(self)
-        #     print("original emissions")
-        #     print(self.emission_matrix)
-        #     print("emissions")
-        #     print(self.reduced_emissions)
-        #     print("other emissions")
-        #     for i in self.states:
-        #         print(i.emissions)
-        #     raise Exception
+        try:
+            return np.exp(self.model.score(string))
+        except Exception as e:
+            print(string)
+            print("error")
+            print(e)
+            print(self)
+            print("original emissions")
+            print(self.emission_matrix)
+            print("emissions")
+            print(self.reduced_emissions)
+            print("other emissions")
+            for i in self.states:
+                print(i.emissions)
+            raise Exception
 
     def generate_strings(self, num_string):
         if self.kind == "BIF" or self.kind == "END":
