@@ -1,13 +1,13 @@
 import csv
-from itertools import product
+from itertools import combinations
 from pathlib import Path
+import math
 
-from tqdm.contrib.concurrent import process_map
-from zss import simple_distance
+# from tqdm.contrib.concurrent import process_map
+from tqdm import tqdm
 
 import ComplexParser
 from ComplexParser import Node
-import zss_alg
 from zss_alg import naive_size_dist
 
 
@@ -56,7 +56,7 @@ def main():
         resultswriter.writerow(["clan1", "family1", "clan2", "family2", "distance"])
 
         results = []
-        for i in product(models, models):
+        for i in tqdm(combinations(models, 2), total=math.comb(len(models), 2)):
             try:
                 results.append(f(i))
             except Exception as e:
