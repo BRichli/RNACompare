@@ -5,6 +5,27 @@ import numpy.typing as npt
 from Errors import *
 from Structures import *
 
+l1 = [
+    "AA",
+    "AC",
+    "AG",
+    "AU",
+    "CA",
+    "CC",
+    "CG",
+    "CU",
+    "GA",
+    "GC",
+    "GG",
+    "GU",
+    "UA",
+    "UC",
+    "UG",
+    "UU",
+]
+l2 = ["A", "C", "G", "U"]
+dummy = "DUMMY"
+
 
 class ROOT(Node):
     def __init__(self, id: int):
@@ -71,28 +92,12 @@ class MP(State):
         super().__init__(id, "MP", 16)
 
     def addEmissions(self, ems) -> None:
-        l = [
-            "AA",
-            "AC",
-            "AG",
-            "AU",
-            "CA",
-            "CC",
-            "CG",
-            "CU",
-            "GA",
-            "GC",
-            "GG",
-            "GU",
-            "UA",
-            "UC",
-            "UG",
-            "UU",
-        ]
         ems = np.exp(ems)
         s = sum(ems)
         ems = map(lambda x: x / s, ems)
-        self.emissions = {rna: prob for rna, prob in zip(l, ems)}
+        for rna, prob in zip(l1, ems):
+            self.emissions[rna] = prob
+        self.emissions[dummy] = 0.0
 
 
 class ML(State):
@@ -100,11 +105,12 @@ class ML(State):
         super().__init__(id, "ML", 4)
 
     def addEmissions(self, ems) -> None:
-        l = ["A", "C", "G", "U"]
         ems = np.exp(ems)
         s = sum(ems)
         ems = map(lambda x: x / s, ems)
-        self.emissions = {rna: prob for rna, prob in zip(l, ems)}
+        for rna, prob in zip(l2, ems):
+            self.emissions[rna] = prob
+        self.emissions[dummy] = 0.0
 
 
 class MR(State):
@@ -112,11 +118,12 @@ class MR(State):
         super().__init__(id, "MR", 4)
 
     def addEmissions(self, ems) -> None:
-        l = ["A", "C", "G", "U"]
         ems = np.exp(ems)
         s = sum(ems)
         ems = map(lambda x: x / s, ems)
-        self.emissions = {rna: prob for rna, prob in zip(l, ems)}
+        for rna, prob in zip(l2, ems):
+            self.emissions[rna] = prob
+        self.emissions[dummy] = 0.0
 
 
 class IL(State):
@@ -124,11 +131,12 @@ class IL(State):
         super().__init__(id, "IL", 4)
 
     def addEmissions(self, ems) -> None:
-        l = ["A", "C", "G", "U"]
         ems = np.exp(ems)
         s = sum(ems)
         ems = map(lambda x: x / s, ems)
-        self.emissions = {rna: prob for rna, prob in zip(l, ems)}
+        for rna, prob in zip(l2, ems):
+            self.emissions[rna] = prob
+        self.emissions[dummy] = 0.0
 
 
 class IR(State):
@@ -136,11 +144,12 @@ class IR(State):
         super().__init__(id, "IR", 4)
 
     def addEmissions(self, ems) -> None:
-        l = ["A", "C", "G", "U"]
         ems = np.exp(ems)
         s = sum(ems)
         ems = map(lambda x: x / s, ems)
-        self.emissions = {rna: prob for rna, prob in zip(l, ems)}
+        for rna, prob in zip(l2, ems):
+            self.emissions[rna] = prob
+        self.emissions[dummy] = 0.0
 
 
 class D(State):

@@ -8,6 +8,32 @@ from Structures import *
 from Errors import *
 from SubStructures import *
 from TraversalMechanisms import *
+from hmmlearn import hmm
+import removeSilent
+
+
+l1 = [
+    "AA",
+    "AC",
+    "AG",
+    "AU",
+    "CA",
+    "CC",
+    "CG",
+    "CU",
+    "GA",
+    "GC",
+    "GG",
+    "GU",
+    "UA",
+    "UC",
+    "UG",
+    "UU",
+    "A",
+    "C",
+    "G",
+    "U",
+]
 
 
 # +++++++++++++++++++++Markov
@@ -129,15 +155,9 @@ def lexer(file: str | Path) -> Node:
             for state in node.states:
                 tempLen += state.expLen
                 for child in state.children.keys():
-                    try:
-                        if child.within != node:
-                            node.addChild(child.within)
-                    except Exception as e:
-                        print(e)
-                        print(f"state: #{state}")
-                        print(f"child: {child}")
-                        stateDict[state]
-                        print("\n<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>\n")
+                    if child.within != node:
+                        node.addChild(child.within)
+
                 for parent in state.parents.keys():
                     if parent.within != node:
                         node.addParent(parent.within)
@@ -145,6 +165,9 @@ def lexer(file: str | Path) -> Node:
             node.setExpLen(tempLen)
             node.normalize()
             node.transition_matrix = extractMatrix(node)
+            node.extract_emission_matrix()
+            node.make_model()
+            node.generate_strings(4)  # magic number
 
         # at this point all states and all nodes should be linked.
     return nodelist[
@@ -178,27 +201,29 @@ def lexNode(node: Node, stateDict: Dict[int, State], filestream: TextIO) -> Node
         match type:
             case "MP":
                 state = MP(id)
-                emissions = [float(x) for x in tokens[end_Transitions:]]
+                emissions = [float(x) for x in tokens[-16:]]
                 state.addEmissions(emissions)
 
             case "ML":
                 state = ML(id)
-                emissions = [float(x) for x in tokens[end_Transitions:]]
+                emissions = [float(x) for x in tokens[-4:]]
                 state.addEmissions(emissions)
 
             case "MR":
                 state = MR(id)
-                emissions = [float(x) for x in tokens[end_Transitions:]]
+                emissions = [float(x) for x in tokens[-4:]]
                 state.addEmissions(emissions)
 
             case "IL":
                 state = IL(id)
-                emissions = [float(x) for x in tokens[end_Transitions:]]
+
+                emissions = [float(x) for x in tokens[-4:]]
+
                 state.addEmissions(emissions)
 
             case "IR":
                 state = IR(id)
-                emissions = [float(x) for x in tokens[end_Transitions:]]
+                emissions = [float(x) for x in tokens[-4:]]
                 state.addEmissions(emissions)
 
             case "D":
@@ -263,20 +288,50 @@ def main():
 
     # just testing for now
     node = lexer(sys.argv[1])
-
     # edges = []
-    np.set_printoptions(precision=30, suppress=True)
+    np.set_printoptions(precision=5, suppress=True)
 
     def findnode(n):
         if n.id == 6:
-            print("\n")
-            print(["E"] + n.states + ["EX"])
-            print(n.transition_matrix[0, :])
+            return n
 
+    x = node
     traveler = NodeTraverse(findnode, root=node)
-
     for i in traveler:
-        pass
+        if i is not None:
+            x = i
+            break
+
+    # x.make_model()
+
+    # x.generate_strings(4)
+
+    for y in x.emitted_strings:
+        print(y)
+
+    # from pomegranate.hmm import DenseHMM, SparseHMM
+    # from pomegranate.distributions import Categorical
+
+    # distrs = []
+    # for i in ems:
+    #     distrs.append(Categorical([i]))
+    # # model.add_distributions(distrs)
+
+    # edges = []
+    # for row_num, row in enumerate(tmatrix):
+    #     for col_num, prob in enumerate(row):
+    #         if prob > 0.0:
+    #             edges.append([distrs[row_num], distrs[col_num], prob])
+
+    # # model.add_edge(model.start, distrs[0], 1.0)
+    # # model.add_edge(distrs[-1], model.end, 1.0)
+    # starts = np.array([1.0] + [0.0 for _ in range(size - 1)])
+    # ends = np.array([0.0 for _ in range(size - 1)] + [1.0])
+
+    # model = SparseHMM(distributions=distrs, edges=edges, starts=starts, ends=ends)
+    # model.add_distributions(distrs)
+    # X_sample = model.sample(10)
+    # print(X_sample)
 
 
 if __name__ == "__main__":

@@ -15,6 +15,9 @@ import numpy as np
 import numpy.typing as npt
 from Errors import *
 
+import removeSilent
+from hmmlearn import hmm
+
 
 class Node:
     @staticmethod
@@ -40,11 +43,68 @@ class Node:
         self.transition_matrix: npt.NDArray[np.float64] = np.array([0])
         self.incomingedges: dict[State, float] = {}
         self.outgoingedges: dict[State, float] = {}
+        self.emission_matrix: npt.NDArray[np.float64] = np.array([0])
+        self.emitted_strings = []
+        self.model = None
+
+    def extract_emission_matrix(self):
+        self.emission_matrix = np.array(
+            [e for e in map(lambda x: list(x.emissions.values()), sorted(self.states))]
+        )
 
     def normalize(self) -> None:
         self.states = sorted(list(set(self.states)))
         self.parents = sorted(list(set(self.parents)))
         self.children = sorted(list(set(self.children)))
+
+    def make_model(self):
+        if self.model is not None:
+            return
+
+        emissions = np.vstack(
+            (
+                np.array([0.0 for _ in range(20)] + [1.0]),
+                self.emission_matrix,
+                np.array([0.0 for _ in range(20)] + [1.0]),
+            )
+        )
+        transitions, emissions = removeSilent.normalize_and_remove(
+            self.transition_matrix, emissions
+        )
+        size = np.shape(transitions)[0]
+        model = hmm.CategoricalHMM(n_components=len(transitions[0, :]))
+        model.startprob_ = np.array([1.0] + [0.0 for _ in range(size - 1)])
+        model.transmat_ = transitions
+        model.emissionprob_ = emissions
+        self.model = model
+
+    def emission_prob(self, string):
+        return self.model.score(string)
+
+    def generate_strings(self, num_string):
+        if len(self.emitted_strings) >= num_string:
+            return
+        numtomake = num_string - len(self.emitted_strings)
+        for i in range(numtomake):
+            magic_dummy = 20
+            symbol_string = [magic_dummy]
+            symbol = ""
+            state = np.random.choice(self.model.n_components, p=self.model.startprob_)
+            while symbol != magic_dummy:
+                state = np.random.choice(
+                    self.model.n_components, p=self.model.transmat_[state]
+                )
+                symbol = np.random.choice(
+                    self.model.emissionprob_.shape[1], p=self.model.emissionprob_[state]
+                )
+                if symbol != magic_dummy:
+                    symbol_string.append(symbol)
+            symbol_string.append(20)
+            symbol_string = np.array(symbol_string)
+            symbol_string = symbol_string.reshape(1, -1)
+            self.emitted_strings.append(
+                (symbol_string, self.emission_prob(symbol_string))
+            )
 
     def getId(self) -> int:
         return self.id
@@ -112,9 +172,33 @@ class State:
         self.within: Optional[Node] = None
         self.expLen: int = -1
         self.num_emissions: int = num_emissions
+        State.addEmissions(self, {})
 
     def addEmissions(self, ems) -> None:
-        self.emissions = {}
+        l1 = [
+            "AA",
+            "AC",
+            "AG",
+            "AU",
+            "CA",
+            "CC",
+            "CG",
+            "CU",
+            "GA",
+            "GC",
+            "GG",
+            "GU",
+            "UA",
+            "UC",
+            "UG",
+            "UU",
+            "A",
+            "C",
+            "G",
+            "U",
+            "DUMMY",
+        ]
+        self.emissions = {rna: 0.0 for rna in l1}
 
     def getExpLen(self) -> int:
         return self.expLen
@@ -133,9 +217,6 @@ class State:
 
     def addChildrenBulk(self, children: Dict[Union[State, int], float]):
         self.children = children
-        # if self.children.get(self.id, None) is not None:
-        #     self.children[self] = self.children[self.id]
-        #     self.children.pop(self.id)
 
     def addChild(self, child: State, odds: float) -> None:
         self.children[child] = odds

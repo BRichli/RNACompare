@@ -8,9 +8,22 @@ from zss import simple_distance
 import ComplexParser
 from ComplexParser import Node
 import zss_alg
+from zss_alg import naive_size_dist
 
 
 type Model = tuple[str, str, Node]
+
+
+def insert_cost(a):
+    return a.expLen
+
+
+def remove_cost(a):
+    return a.expLen
+
+
+def update_cost(a, b):
+    return abs(a.expLen - b.expLen)
 
 
 def f(models: tuple[Model, Model]):
@@ -20,13 +33,14 @@ def f(models: tuple[Model, Model]):
             models[0][1],  # family 1
             models[1][0],  # clan 2
             models[1][1],  # family 2
-            simple_distance(
-                models[0][2],
-                models[1][2],
-                Node.get_children,
-                Node.getSelf,
-                zss_alg.id_dist_expLen,
-            ),
+            # simple_distance(
+            #     models[0][2],
+            #     models[1][2],
+            #     Node.get_children,
+            #     Node.getSelf,
+            #     zss_alg.id_dist_basic,
+            # ),
+            naive_size_dist(models[0][2], models[1][2]),
         )
     except Exception as e:
         e.add_note(f"{'/'.join(models[0][:2])} and {'/'.join(models[1][:2])}")
@@ -41,7 +55,15 @@ def main():
         resultswriter = csv.writer(resultsfile)
         resultswriter.writerow(["clan1", "family1", "clan2", "family2", "distance"])
 
-        results = process_map(f, product(models, models))
+        results = []
+        for i in product(models, models):
+            try:
+                results.append(f(i))
+            except Exception as e:
+                print("EXCEPTION")
+                print(i[0][:2])
+                print(i[1][:2])
+                raise e
         resultswriter.writerows(results)
 
 
