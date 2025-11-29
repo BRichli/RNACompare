@@ -14,18 +14,6 @@ from zss_alg import naive_size_dist
 type Model = tuple[str, str, Node]
 
 
-def insert_cost(a):
-    return a.expLen
-
-
-def remove_cost(a):
-    return a.expLen
-
-
-def update_cost(a, b):
-    return abs(a.expLen - b.expLen)
-
-
 def f(models: tuple[Model, Model]):
     try:
         return (
