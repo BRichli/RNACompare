@@ -1,0 +1,23 @@
+TODO
+
+Joseph
+- Write Formalism for ZSS ie Pseudocode and short explanation
+- Write Time Complexity for ZSS
+- Write Space Complexity for ZSS
+- List the papers that you know for Related Work and a short paragraph on each
+
+
+Bryan
+- Write Formalism for HMM ie Pseudocode and short explanation
+- Write Time Complexity for HMM
+- Write Space Complexity for HMM    
+- Write Implementation details
+- List the papers that you know for Related Work and a short paragraph on each
+- Fix Readme to include file structure
+
+Dominic
+- List the papers that you know for Related Work and a short paragraph on each
+- Expand Introduction
+- Write Discussion section
+- Write Evaluation section
+- Add commands to run and to run on new inputs in README
