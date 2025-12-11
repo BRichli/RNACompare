@@ -49,6 +49,8 @@ class Node:
         self.reduced_transitions: npt.NDArray[np.float64] = np.array([0])
         self.reduced_emissions: npt.NDArray[np.float64] = np.array([0])
         self.distance_from_dict = {}
+        self.empty_emission_prob = None
+        self.vs_empty = None
 
     def clear_distances(self):
         self.distance_from_dict = {}
@@ -59,7 +61,53 @@ class Node:
         )
 
     def compare_to_empty(self):
-        return self.emission_prob(np.array([[20], [20]]))
+        magic_default = 5.0
+        if self.vs_empty is not None:
+            return self.vs_empty
+
+        if self.empty_emission_prob is None:
+            if self.kind == "END" or self.kind == "BIF":
+                self.empty_emission_prob = 1.0
+                self.vs_empty = magic_default
+                return self.vs_empty
+            self.empty_emission_prob = [
+                [[20], [20]],
+                self.emission_prob(np.array([[20], [20]])),
+            ]
+
+        other_strings = [self.empty_emission_prob] * len(self.emitted_strings)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            our_probs_their_strings = list(
+                zip(
+                    map(lambda x: self.emission_prob(x[0]), self.emitted_strings),
+                    [x[1] for x in other_strings],
+                )
+            )
+
+            logs = list(
+                map(
+                    lambda x: np.log(x[0] / (x[1] + 0.1)),
+                    our_probs_their_strings,
+                )
+            )
+
+            their_probs_our_strings = list(
+                zip(
+                    map(lambda x: self.emission_prob(x[0]), other_strings),
+                    [x[1] for x in self.emitted_strings],
+                )
+            )
+            logs += list(
+                map(
+                    lambda x: np.log(x[0] / (x[1] + 0.1)),
+                    their_probs_our_strings,
+                )
+            )
+
+        average = sum(logs) / len(logs)
+        average = -average
+        self.vs_empty = average
+        return average
 
     def compare_to_other(self, other):
         magic_default = 5.0
@@ -100,8 +148,8 @@ class Node:
 
             their_probs_our_strings = list(
                 zip(
+                    map(lambda x: other.emission_prob(x[0]), self.emitted_strings),
                     [x[1] for x in self.emitted_strings],
-                    map(lambda x: self.emission_prob(x[0]), self.emitted_strings),
                 )
             )
             logs += list(
