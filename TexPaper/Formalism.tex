@@ -23,12 +23,18 @@ $X$ at the next observation period, also given as a vector $p(x_t | x_{t-1})$.
 
 This model can emit a sequence of observations, $y_{1:T}$ . The likelihood that a given
 model has produced a particular observation sequence can be computed efficiently using
-the forward algorithm. This recursive algorithm uses the markov property to simplify the calculation from needing to 
-track the probabilities of each possible state sequence to only needing to track the probabilities of the most recent time-step.
+the forward algorithm.  
+
+A naive solution to find the probability of being in state $x$ at time $T$ 
+and emitting symbol $y_T$, by summing the probability of all possible paths which could have emitted the entire sequence and ended in state $x$. Instead 
+the forward algorimthm uses the markov property (the current state only depends on the previous state) to construct an optimal substructure. 
+We can say that $(x_T | y_{1:T})$ only depends upon the solutions to $(x_{T-1} | y_{:T-1})$, and the constant transition / emission probabilites 
+applied to these subproblem solutions.
 
 
-\begin{algorithm}~\label{alg:hmm-forward}
+\begin{algorithm}
 \caption{Forward Algorithm for HMM}
+\label{alg:hmm-forward}
     \begin{algorithmic}[1]
         \State Initialize
         \State \quad $t = 0$
@@ -41,15 +47,37 @@ track the probabilities of each possible state sequence to only needing to track
         \vspace{0.5em}
         \State \quad $\alpha(x_t) = p(y_t,x_t)\,\displaystyle\sum_{x_{t-1}} p(x_t \mid x_{t-1})\,\alpha(x_{t-1})$
         \vspace{0.5em}
-        \State Return: $p(x_T \mid y_{1:T}) = \dfrac{\alpha(x_T)}{\displaystyle\sum_{x_T}\alpha(x_T)}$
+        \State Return: $p(y_{1:T}) = \displaystyle\sum_{x_T}\alpha(x_T)$
     \end{algorithmic}
 \end{algorithm}
 % BRYAN WRITE FORMALISM FOR HMM ie PSEUDOCODE AND SHORT EXPLANATION
 
-In alogrith~\ref{alg:hmm-forward}, we present the forward algorithm. After initializing the model parameters and prior probabilities,
+In algorithm~\ref{alg:hmm-forward}, we present the forward algorithm. After initializing the model parameters and prior probabilities,
 we iterate through each time step $t$ from $1$ to $T$. We then update the probability of being in a given state by summing over all probabilities
 from the previous time step, weighted by their associated transition probabilities, and multiplying the sum by the emission probability of the current ovbservation.
 
-The final result is the probability of being in each state at time $T$, given the entire sequence of observations up to that point.
-To find the total likelihood of the observation sequence, we sum the probabilities of being in each state at time $T$.
+The final result of this step is the probability of being in each state at time $T$, given the entire sequence of observations up to that point.
+To calculate the total probability of the HMM emitting the sequence we sum over all final state probabilities. 
+
+\subsection{Distance Calculation}
+To compare two Hidden Markov Models $H_1$ and $H_2$, we generate several sequences of
+observations from each model. Let these sequences be labeled
+$h1_1, h1_2, \ldots, h1_n$ from $H_1$ and $h2_1, h2_2, \ldots, h2_n$ from $H_2$. 
+We approximate the Kullback--Leibler (KL) divergence in both directions and then average
+over the number of sequences. While many other divergence measures could be employed,
+such as the Jeffreys divergence, due to time constraints we only tested using
+KL divergence.
+The approximation is given by
+
+
+\[
+D(H_1, H_2) \approx \frac{1}{2n} \left(
+    \sum_{i=1}^n \log \frac{p(h1_i \mid H_2)}{p(h1_i \mid H_1)}
+    + \sum_{i=1}^n \log \frac{p(h2_i \mid H_1)}{p(h2_i \mid H_2)}
+\right).
+\]
+
+
+Here $p(h \mid H)$ denotes the probability of sequence $h$ under model $H$, computed
+using the forward algorithm.
 
