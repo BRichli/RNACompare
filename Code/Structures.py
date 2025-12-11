@@ -70,9 +70,10 @@ class Node:
                 self.empty_emission_prob = 1.0
                 self.vs_empty = magic_default
                 return self.vs_empty
+            temp = self.emission_prob(np.array([[20], [20]]))
             self.empty_emission_prob = [
                 [[20], [20]],
-                self.emission_prob(np.array([[20], [20]])),
+                temp,
             ]
 
         other_strings = [self.empty_emission_prob] * len(self.emitted_strings)
@@ -90,17 +91,10 @@ class Node:
                     our_probs_their_strings,
                 )
             )
-
-            their_probs_our_strings = list(
-                zip(
-                    map(lambda x: self.emission_prob(x[0]), other_strings),
-                    [x[1] for x in self.emitted_strings],
-                )
-            )
             logs += list(
                 map(
-                    lambda x: np.log(x[0] / (x[1] + 0.1)),
-                    their_probs_our_strings,
+                    lambda x: np.log(x[1] / (x[0] + 0.1)),
+                    our_probs_their_strings,
                 )
             )
 

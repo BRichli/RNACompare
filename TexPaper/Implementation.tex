@@ -13,7 +13,7 @@ In contrast to the formal description of the algorithm, the concrete implementat
 requires structural adjustments to the Hidden Markov Models. Specifically, each model
 is augmented with a single entry state and a final exit state. The reason for the
 initial incoming transition is that, while we represent each node
-as an HMM, this is a simplification, a node may have several incoming and several outgoing transitions. To account for this, 
+as an HMM, this is a simplification. A node may have several incoming and several outgoing transitions. To account for this, 
 these incoming and outgoing transitions are
 collected and normalized into one incoming and one outgoing state, with transition probabilities
 summed and normalized. This ensures that every sequence begins from a
@@ -32,6 +32,7 @@ character. We believe this modification would shift the comparison between HMMs 
 a more structural rather than emission-based distance measure. Further research could
 evaluate the effect of this approach. 
 
+\subsection{Distance Metric Augmenations}
 
 Because the ZSS algorithm must also account for insertions and deletions, we require a
 consistent rule for comparing a node to its absence. We handle this by comparing the 
@@ -55,14 +56,13 @@ otherwise. For this test we chose -5.0 odds.
 
 
 
-
 \subsection{Memoization}
-To reduce redundant computation, many values are memoized during parsing and model
+To reduce redundant computation, many values are saved during parsing and model
 construction. All sample strings required for label comparison are generated once and
 stored, together with the probability that the generating model produced it, given by the forward algorith.
 
 Furthermore, when comparing two CM's with the ZSS algorithm, the distance
-between nodes is memoized after the first computation. Subsequent distance measures
+between nodes is save after the first computation. Subsequent distance measures
 are retrieved directly from this cache, eliminating repeated evaluations and improving
 overall efficiency.
 
