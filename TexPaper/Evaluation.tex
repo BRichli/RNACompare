@@ -2,3 +2,33 @@
 \label{sec:evaluation}
 % DOMINIC WRITE EVALUATION 
 
+Having implemented this approach for comparing covariance models, we need a way to evaluate how well it performs.
+We explore two methods to evaluate how well our approach compares covariance models.
+First, is an extremely naïve statistical analysis that will use the RNA family's identified clan to compare within- and between-group similarity.
+Second, is a more nuanced approach that utilizes concrete sequence comparison as a base truth for comparing the models.
+
+Due to time constraints, we only fully implemented the first comparison method.
+We will still describe the second method as it is useful for context and potential future work.
+
+For this first method, we utilized the clan classification given to some groups of RNA families. Naïvely, we assume that the distance of covariance models within a clan is on average smaller than the distance of covariance models between clans. However, using clans to perform within- and between-group analysis is flawed for several reasons.
+Primarily, the clans are not strictly organized based on structure.
+As our approach implements a structural comparison between covariance models, comparing the distance of models within clans and models between clans will not necessarily be representative.
+Another flaw being the variability in the number of identified RNA families in a clan.
+As we have an uneven distribution of potential within- and between-clan comparisons, our comparison will need to be resilient to that bias in the dataset.
+Despite these flaws, we still attempt this comparison method.
+
+Permutational multivariate analysis of variance (PERMANOVA) is a good statistical test for this comparison. Compared to ANOVA, which compares the means of groups, PERMANOVA uses a distance measurement between values.
+This matches perfectly with our need to evaluate our distance comparison and mitigates the impact of our disparate group sizes.
+
+We arbitrarily selected 40 covariance models across 10 clans for use in our evaluation.
+This gives 780 combinations of families to compare.
+On an M4 MacBook Pro with 24GB of RAM, this took approximately 3 hours to complete.
+Given the distance from these combinations, we are able to construct the distance matrix necessary for PERMANOVA.
+Running this statistical test resulted in a test statistic of \textbf{1.029482} and a p-value of approximately \textbf{0.4}.
+The test statistic describes the similarity of the within- and between-group comparisons.
+We will discuss the implications of these results in Section~\ref{sec:discussion}.
+
+Our second method of evaluation is to use the comparison of RNA sequences belonging to an RNA family as a baseline truth to measure our comparison of covariance models.
+As the comparison of RNA sequences is a structural comparison, the flaw of using clans would not be an issue.
+If our method of comparing covariance models is an effective measurement, we would expect there to be a correlation for the distance measured between RNA sequences of different families and distance between covariance models.
+Unfortunately, due to time constraints and our inexperience in bioinformatics, we were unable to perform this analysis.

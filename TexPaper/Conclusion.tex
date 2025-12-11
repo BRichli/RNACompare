@@ -1,4 +1,14 @@
 \section{Conclusion}
 \label{sec:conlusion}
-
 % DOMINIC VOLUNTEERS AS TRIBUTE FOR CONCLUSION
+
+We present our approach for structural comparison of RNA family covariance models using tree edit distance and HMM to HMM comparison.
+The Zhang-Shasha algorithm is a competitive and robust method of computing the distance between two ordered and labeled trees in a reasonable time complexity for the task.
+Our HMM to HMM comparison leverages the internal structure of nodes within a covariance model to produce a cost function that can be used in the tree edit distance algorithm.
+Together, we find these two approaches to be an interesting, if not promising, way to compare covariance models.
+
+Despite the flaws in our evaluation of this approach, we believe that utilizing a different method of evaluation would allow us to better scrutinize this approach and present ways to improve the details of our HMM to HMM comparison.
+It is unfortunate that we were unable to perform a better evaluation before the writing of this paper.
+This leaves significant future work open for developing and evaluating this approach.
+
+Ultimately, we find that this approach was a worthwhile first attempt at using tree edit distance for comparison of covariance models.
