@@ -10,3 +10,46 @@
 \subsection{Hidden Markov Model Distance}
 \label{subsec:hmm-distance}
 % BRYAN WRITE FORMALISM FOR HMM ie PSEUDOCODE AND SHORT EXPLANATION
+\subsection{Hidden Markov Model Distance}
+\label{subsec:hmm-distance}
+
+\subsection{Hidden Markov Model}
+
+A Hidden Markov Model (HMM) consists of a finite set of states $X$ and an alphabet $Y$.
+Each state $x \in X$ has an emission probability function, given as a vector p$(y | x_i)$, that gives the probability of
+emitting a symbol $y \in Y$, and each state $x$ has a transition probability function
+that specifies the probability of moving from the current state to any other state in
+$X$ at the next observation period, also given as a vector $p(x_t | x_{t-1})$.
+
+This model can emit a sequence of observations, $y_{1:T}$ . The likelihood that a given
+model has produced a particular observation sequence can be computed efficiently using
+the forward algorithm. This recursive algorithm uses the markov property to simplify the calculation from needing to 
+track the probabilities of each possible state sequence to only needing to track the probabilities of the most recent time-step.
+
+
+\begin{algorithm}~\label{alg:hmm-forward}
+\caption{Forward Algorithm for HMM}
+    \begin{algorithmic}[1]
+        \State Initialize
+        \State \quad $t = 0$
+        \State \quad transition probabilities: $p(x_t \mid x_{t-1})$
+        \State \quad emission probabilities: $p(y_t \mid x_t)$
+        \State \quad observations: $y_{1:T}$
+        \State \quad prior probability: $\alpha(x_0)$
+        \vspace{0.5em}
+        \State For $t = 1$ to $T$:
+        \vspace{0.5em}
+        \State \quad $\alpha(x_t) = p(y_t,x_t)\,\displaystyle\sum_{x_{t-1}} p(x_t \mid x_{t-1})\,\alpha(x_{t-1})$
+        \vspace{0.5em}
+        \State Return: $p(x_T \mid y_{1:T}) = \dfrac{\alpha(x_T)}{\displaystyle\sum_{x_T}\alpha(x_T)}$
+    \end{algorithmic}
+\end{algorithm}
+% BRYAN WRITE FORMALISM FOR HMM ie PSEUDOCODE AND SHORT EXPLANATION
+
+In alogrith~\ref{alg:hmm-forward}, we present the forward algorithm. After initializing the model parameters and prior probabilities,
+we iterate through each time step $t$ from $1$ to $T$. We then update the probability of being in a given state by summing over all probabilities
+from the previous time step, weighted by their associated transition probabilities, and multiplying the sum by the emission probability of the current ovbservation.
+
+The final result is the probability of being in each state at time $T$, given the entire sequence of observations up to that point.
+To find the total likelihood of the observation sequence, we sum the probabilities of being in each state at time $T$.
+
