@@ -51,6 +51,7 @@ class Node:
         self.distance_from_dict = {}
         self.empty_emission_prob = None
         self.vs_empty = None
+        self.epsilon = 0.0001
 
     def clear_distances(self):
         self.distance_from_dict = {}
@@ -87,13 +88,13 @@ class Node:
 
             logs = list(
                 map(
-                    lambda x: np.log(x[0] / (x[1] + 0.001)),
+                    lambda x: np.log(x[0] / (x[1] + self.epsilon)),
                     our_probs_their_strings,
                 )
             )
             logs += list(
                 map(
-                    lambda x: np.log(x[1] / (x[0] + 0.001)),
+                    lambda x: np.log(x[1] / (x[0] + self.epsilon)),
                     our_probs_their_strings,
                 )
             )
@@ -135,7 +136,7 @@ class Node:
 
             logs = list(
                 map(
-                    lambda x: np.log(x[0] / (x[1] + 0.001)),
+                    lambda x: np.log(x[0] / (x[1] + self.epsilon)),
                     our_probs_their_strings,
                 )
             )
@@ -148,7 +149,7 @@ class Node:
             )
             logs += list(
                 map(
-                    lambda x: np.log(x[0] / (x[1] + 0.001)),
+                    lambda x: np.log(x[0] / (x[1] + self.epsilon)),
                     their_probs_our_strings,
                 )
             )
