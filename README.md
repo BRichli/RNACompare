@@ -47,7 +47,7 @@
  2. Create a new subdirectory.
  3. Fill it with `.cm` files.
  
- All `.cm` files in the same subdirectory will be assumed to belong to the same RNA family.
+ All `.cm` files in the same subdirectory will be assumed to belong to the same RNA clan.
  
  ## Directory structure
  ```
@@ -60,6 +60,6 @@
  │   ├── TraversalMechanisms.py     # Tree traversal algorithms
  │   ├── ComplexParser.py           # Main parser for CM's
  │   └── +Supplementaryfiles        # Support functions
- ├── CMs/                           # RNA family directories (.cm files)
+ ├── CMs/                           # RNA clan directories (.cm files)
  └── README.md
 
