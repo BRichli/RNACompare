@@ -35,7 +35,7 @@ One key aspect of this algorithm is that the cost of adding, deleting, or re-lab
 that the implementer can provide. As discussed below, this project implements a custom re-labeling cost, determined by
 the specific HMMs contained in each node. The rest of this analysis assumes that the cost of these functions is $O(1)$; 
 however, in practice, they depend on the contents of the node, increasing the overall complexity by a multiplicative term.
-Once the criteria for costs are determined, the algorithm used a simple 
+Once the criteria for costs are determined, the algorithm uses a simple 
 selection criteria:
 
 $\mathrm forestdist[l[i_1]][i][l[j_1]][j] =
