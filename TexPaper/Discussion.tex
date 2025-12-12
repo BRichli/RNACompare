@@ -2,33 +2,32 @@
 \label{sec:discussion}
 % DOMINIC WRITE DISCUSSION
 
-From our evaluation of our comparison approach using PERMANOVA, we have found that using the Zhang-Shasha tree edit distance algorithm and our HMM distance cost function produced results that were statistically significant, but not necessarily meaningful.
+From our evaluation of our comparison approach using PERMANOVA, we have found that using the Zhang-Shasha tree edit distance algorithm and our HMM distance cost function produced results that were statistically significant.
 The test statistic of approximately \textbf{5.1} means that there is significant difference in the within- and between-group distances.
 Further, as our p-value is \textbf{0.002}, our results are likely statistically significant.
 
-There are threats to our approach.
-While Zhang-Shasha is a competitive algorithm for tree edit distance of ordered and labeled trees, it is possible that our chosen ordering of nodes from the covariance model negatively impacted our results.
-It is also possible that the cost function we implemented to determine the cost of deleting, inserting, and re-labeling nodes was not optimal.
-Our HMM fragment to HMM fragment is a probabilistic process involving produced sequence likely hood and could be potentially tuned for better or worse results.
-Without a rigorous method of evaluation, these individual aspects of our approach are difficult to properly evaluate and potentially tune.
-
-Another potential threat is our small dataset.
+A potential threat to our results is our small dataset.
 We only considered 40 covariance models and 10 clans.
 At the time, there are 4,170 RNA families and 147 clans on Rfam, meaning that there is a much larger dataset we could reach for.
 
 Using all 4,170 RNA families (assuming each family on Rfam has a covariance model) would mean just under 8.7 million comparisons to make.
 It is unlikely we could have completed our approach on the entire dataset in a reasonable time frame using the consumer hardware available to us.
 Despite this limitation, it is possible that the PERMANOVA test on this larger dataset could produce different results.
-However, due to the previously discussed issue with using clans as a category, this approach would likely still be flawed.
+
+There are alternatives to our approach.
+While Zhang-Shasha is a competitive algorithm for tree edit distance of ordered and labeled trees, it is possible that our chosen ordering of nodes from the covariance model negatively impacted our results.
+It is also possible that the cost function we implemented to determine the cost of deleting, inserting, and re-labeling nodes can be optimized.
+Our HMM fragment to HMM fragment is a probabilistic process involving produced sequence likelyhood and could be potentially tuned for better or worse results.
+Without a rigorous method of evaluation, these individual aspects of our approach represent an potential opportunity for tuning.
 
 The second method of using correlation of RNA sequences comparison to covariance model comparison is a much more promising avenue for fairly evaluating our approach.
 RNA sequence comparison or alignment is a well studied problem in bioinformatics, with a number of approaches and techniques.
-Given enough time, we likely could have repurposed an existing tool for this.
+Given enough time, we likely could have repurposed an existing tool for this style of analasys.
 We regret that we were unable to conduct this evaluation in time to include in this paper.
 
 One benefit of our approach is the actual run time for comparing two models.
 While we have no concrete data for any one particular run, being able to perform 780 comparisons in approximately 3 minutes on consumer hardware represents a reasonable run time.
-Due to our implementation being written in Python and utilizing no amount of parallelization or caching between comparisons, it is likely that there are significant performance gains to be made.
+Due to our implementation being written in Python and utilizing no amount of parallelization and minimal caching between comparisons, it is likely that there are significant performance gains to be made.
 As each comparison is independent of any other comparison, parallelization would be an easy optimization that would likely see time improvements, even on consumer hardware.
 
 Overall, we find our approach to have significant potential despite the potential flaws in our evaluation.
