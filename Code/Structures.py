@@ -51,7 +51,8 @@ class Node:
         self.distance_from_dict = {}
         self.empty_emission_prob = None
         self.vs_empty = None
-        self.epsilon = 0.0001
+        self.epsilon = np.float64(0.0001)
+        self.magic_default = np.log2(2)
 
     def clear_distances(self):
         self.distance_from_dict = {}
@@ -61,15 +62,32 @@ class Node:
             [e for e in map(lambda x: list(x.emissions.values()), sorted(self.states))]
         )
 
+    def jsd(self, leftprob, rightprob):
+        m = np.float64(0.5) * (leftprob + rightprob)
+        if leftprob == 0.0:
+            left = np.float64(0.0)
+        else:
+            left = leftprob * np.log2(np.divide(leftprob, m))
+        if rightprob == 0.0:
+            right = np.float64(0.0)
+        else:
+            right = rightprob * np.log2(np.divide(rightprob, m))
+
+        x = np.float64(0.5) * (left + right)
+
+        if x < 0 or np.isnan(x) or np.isinf(x) or x > self.magic_default:
+            raise Exception(f"{leftprob} {rightprob} {x}")
+
+        return x
+
     def compare_to_empty(self):
-        magic_default = 5.0
         if self.vs_empty is not None:
             return self.vs_empty
 
         if self.empty_emission_prob is None:
             if self.kind == "END" or self.kind == "BIF":
                 self.empty_emission_prob = 1.0
-                self.vs_empty = magic_default
+                self.vs_empty = self.magic_default
                 return self.vs_empty
             temp = self.emission_prob(np.array([[20], [20]]))
             self.empty_emission_prob = [
@@ -78,34 +96,27 @@ class Node:
             ]
 
         other_strings = [self.empty_emission_prob] * len(self.emitted_strings)
-        with np.errstate(divide="ignore", invalid="ignore"):
-            our_probs_their_strings = list(
-                zip(
-                    map(lambda x: self.emission_prob(x[0]), self.emitted_strings),
-                    [x[1] for x in other_strings],
-                )
-            )
 
-            logs = list(
-                map(
-                    lambda x: np.log(x[0] / (x[1] + self.epsilon)),
-                    our_probs_their_strings,
-                )
+        our_probs_their_strings = list(
+            zip(
+                map(lambda x: self.emission_prob(x[0]), self.emitted_strings),
+                [x[1] for x in other_strings],
             )
-            logs += list(
-                map(
-                    lambda x: np.log(x[1] / (x[0] + self.epsilon)),
-                    our_probs_their_strings,
-                )
+        )
+
+        logs = list(
+            map(
+                lambda x: self.jsd(x[0], x[1]),
+                our_probs_their_strings,
             )
+        )
 
         average = sum(logs) / len(logs)
-        average = -average
+        # average = -average
         self.vs_empty = average
         return average
 
     def compare_to_other(self, other):
-        magic_default = 5.0
         if self.distance_from_dict.get(other, None) is not None:
             return self.distance_from_dict[other]
 
@@ -113,7 +124,7 @@ class Node:
             if other.kind == self.kind:
                 return 0.0
             elif other.kind == "END" or other.kind == "BIF":
-                return magic_default
+                return self.magic_default
             else:
                 return other.compare_to_empty()
 
@@ -121,41 +132,41 @@ class Node:
             if other.kind == self.kind:
                 return 0.0
             elif self.kind == "END" or self.kind == "BIF":
-                return magic_default
+                return self.magic_default
             else:
                 return self.compare_to_empty()
 
         other_strings = other.emitted_strings
-        with np.errstate(divide="ignore", invalid="ignore"):
-            our_probs_their_strings = list(
-                zip(
-                    map(lambda x: self.emission_prob(x[0]), other_strings),
-                    [x[1] for x in other_strings],
-                )
-            )
 
-            logs = list(
-                map(
-                    lambda x: np.log(x[0] / (x[1] + self.epsilon)),
-                    our_probs_their_strings,
-                )
+        our_probs_their_strings = list(
+            zip(
+                map(lambda x: self.emission_prob(x[0]), other_strings),
+                [x[1] for x in other_strings],
             )
+        )
 
-            their_probs_our_strings = list(
-                zip(
-                    map(lambda x: other.emission_prob(x[0]), self.emitted_strings),
-                    [x[1] for x in self.emitted_strings],
-                )
+        logs = list(
+            map(
+                lambda x: self.jsd(x[0], x[1]),
+                our_probs_their_strings,
             )
-            logs += list(
-                map(
-                    lambda x: np.log(x[0] / (x[1] + self.epsilon)),
-                    their_probs_our_strings,
-                )
+        )
+
+        their_probs_our_strings = list(
+            zip(
+                map(lambda x: other.emission_prob(x[0]), self.emitted_strings),
+                [x[1] for x in self.emitted_strings],
             )
+        )
+        logs += list(
+            map(
+                lambda x: self.jsd(x[0], x[1]),
+                their_probs_our_strings,
+            )
+        )
 
         average = sum(logs) / len(logs)
-        average = -average
+        # average = -average
         self.distance_from_dict[other] = average
         other.distance_from_dict[self] = average
         return average

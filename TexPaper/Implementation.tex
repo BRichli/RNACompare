@@ -1,7 +1,7 @@
 \section{Implementation}
 \label{sec:implementation}
 
-The algorithm is implemented in Python. We make use
+The CM distance algorithm is implemented in Python. We make use
 of the \texttt{hmmlearn} library to store Hidden Markov Models, to emit sequences of
 observations, and to apply the forward algorithm for likelihood calculations. For the
 ZSS algorithm, we employ the \texttt{zss} package to perform the Zhang--Shasha tree
@@ -9,14 +9,14 @@ edit distance, augmented with our custom distance metric to tailor the compariso
 our models.
 
 \subsection{Node HMM Model Augmentations}
-In contrast to the formal description of the algorithm, the concrete implementation
+In contrast to the formal descriptions provided in Formalisms, the concrete implementation
 requires structural adjustments to the Hidden Markov Models. Specifically, each model
 is augmented with a single entry state and a final exit state. The reason for the
 initial incoming transition is that, while we represent each node
-as an HMM, this is a simplification. A node may have several incoming and several outgoing transitions. To account for this, 
+as an HMM, this is a simplification. A node may have several incoming and several outgoing transitions, potentially in 
+a non-functional, many-to-many relationship. To account for this, 
 these incoming and outgoing transitions are
-collected and normalized into one incoming and one outgoing state, with transition probabilities
-summed and normalized. This ensures that every sequence begins from a
+collected and normalized into one incoming and one outgoing state resp. This ensures that every sequence begins from a
 unique entry point and terminates in a unique exit point. 
 
 As well, in the concrete models there are hidden states that are silent. The forward
@@ -24,45 +24,39 @@ algorithm cannot directly handle the potentially infinite paths that arise from 
 $\epsilon$-transitions, so these states must be removed. Eliminating silent states while
 preserving the transition and emission probabilities of the non-silent states requires
 an $O(n^3)$ preprocessing step, where $n$ is the number of states in the model. This
-transformation is performed once for each node. 
+transformation is performed once for each node when the model is parsed from file. 
 
 Alternatively, we could have chosen 
 to force every silent state to emit a self-identifying
-character. We believe this modification would shift the comparison between HMMs toward
+character. This modification may shift the comparison between HMMs toward
 a more structural rather than emission-based distance measure. Further research could
 evaluate the effect of this approach. 
 
 \subsection{Distance Metric Augmenations}
 
 Because the ZSS algorithm must also account for insertions and deletions, we require a
-consistent rule for comparing a node to its absence. We handle this by comparing the 
+rule for comparing a node to its absence. We handle this by comparing the 
 observed sequences emitted from the node, to the probability that it emits the empty string. 
 
-\[
-D(H, \emptyset) \approx \frac{1}{2n} \left(
-    \sum_{i=1}^n \log \frac{p(h_i \mid H)}{p(\emptyset \mid H)}
-    + \sum_{i=1}^n \log \frac{p(\emptyset \mid H)}{p(h_i \mid H)}
-\right).
-\]
+For this we calculate the Jensen Shannon Divergence of the probabilities of the node's observed emissions
+compared to the probabilities that it emitted the empty string. As opposed to the probability of a different model 
+emitting said observation. 
 
-Here $\emptyset$ denotes the empty string, and $h_i$ are the observed strings generated from the model $H$.
-
-
-Additionally, certain nodes in the concrete model cannot be represented internally as
-Hidden Markov Models. Specifically, the \texttt{BIF} and \texttt{END} nodes are treated
-as structural markers rather than probabilistic models. Any time these nodes are compared 
-to like named nodes they will return a log-odds of 0.0 (perfect match) and a default high value
-otherwise. For this test we chose -5.0 odds. 
+Additionally, certain nodes in the concrete model cannot be represented as
+Hidden Markov Models. Specifically, nodes labled \texttt{BIF} and \texttt{END} act as structural markers rather than probabilistic models. Any time these nodes are compared 
+to like named nodes they will return a similarity of 0.0 (perfect match), and return the value $1$ when 
+compared to non-similar nodes. $\log_2(2) = 1$ is the maximum value of the JSD function when using base two for the log
+calcuations.
 
 
 
 \subsection{Memoization}
 To reduce redundant computation, many values are saved during parsing and model
 construction. All sample strings required for label comparison are generated once and
-stored, together with the probability that the generating model produced it, given by the forward algorith.
+stored, together with the probability that the node produced it, given by the forward algorithm.
 
-Furthermore, when comparing two CM's with the ZSS algorithm, the distance
-between nodes is save after the first computation. Subsequent distance measures
+Furthermore, when comparing two CM's using the ZSS algorithm, the distance
+between any two nodes is saved after their first computation. Subsequent distance measures between these two nodes
 are retrieved directly from this cache, eliminating repeated evaluations and improving
 overall efficiency.
 
