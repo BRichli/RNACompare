@@ -1,4 +1,3 @@
-
 \section{Formalism}
 \label{sec:formalism}
 
@@ -6,6 +5,153 @@
 \subsection{Zhang-Shasha Algorithm}
 \label{subsec:zhang-shasha}
 % JOSEPH WRITE FORMALISM FOR ZSS ie PSEUDOCODE AND SHORT EXPLANATION
+In our approach to the problem, we decided to use the Zhang-Shasha algorithm for tree edit distance. 
+The Zhang-Shasha algorithm (published by Kaizhong Zhang and Dennis Shasha in 1989) is a dynamic programming algorithm
+that computes tree edit distance for ordered, labled trees. These terms are straightforward: in labled trees, nodes
+are assigned one of a selection of distinct types (labels), and exchanging two nodes may produce a different tree,
+if they are not of the same type. Ordered trees, as the name implies, rely on a fixed (ordered) interperetation
+of their children, usually left to right. Again, swapping a left child and a right child may produce a distinct
+tree, depending on their own labels and descendants. Fortunately, this fits our scenario well. The nodes in the
+trees we consider have distinct, meaningful contents, so labels are appropriate. Since the models are RNA-derived,
+and RNA is read left to right, the notion of order should be applicable as well. There are also practical considerations,
+as according to Akutsu et. al. (2009), in further work, Zhang and Shasha proved that the general case of tree edit distance 
+for unordered trees is NP-hard. 
+
+As a dynamic programming algorithm, the Zhang-Shasha algorithm bears some similarity to other dynamic programming 
+algorithms, such as string edit distance. To calculate tree edit distace, the minimal cost is calculated to transform
+one tree into another using three basic operations: adding, deleting, or re-labeling a node. However, as trees allow 
+arbitrary connections and are more complicated than strings, additional methods are needed. Two phases are needed
+to calculate tree edit distance. A dynamic programming table is built up, calculating the cost of changing any
+sub-tree in the input to any sub-tree in the output, and the results combined for the total tree edit distance, 
+and for each sub-tree, the authors generalize the algorithm to forest edit distance. 
+
+By numbering the nodes in each (sub)tree by performing a postorder traversal, children are given lower numbers 
+than their parents, with the leftmost descendant of the root recieving the number $1$ and the root being assigned
+some value $n$. By selecting a range $[a...b]$, a sub-forest is selcted. Using a fixed $a$ and increasing $b$ allows
+the algorithm to have a base case (a single node) and build up to the entire sub-tree to complete the primary 
+dynmic programming matrix. 
+
+One key aspect of this algorithm is that the cost of adding, deleting, or re-labling nodes is determined by functions
+that the implementer can provide. As discussed below, this project implments a custom re-labling cost, determined by
+the specific HMMs contiined in each node. Once the criteria for costs are determined, the algorimthm used a simple 
+selection criteria:
+
+$\mathrm forestdist[l[i_1]][i][l[j_1]][j] =
+\min\begin{cases}
+    \mathrm{}forestdist[l[i_1]][i-1][l[j_1]][j] + delete\_cost(end_1) \\
+    \mathrm{}forestdist[l[i_1]][i][l[j_1]][j-1] + add\_cost(end_2) \\
+    \mathrm{}forestdist[l[i_1]][l[i]-1][l[j_1]][l[j]-1] + forestdist[l[i]][i-1][l[j]][j-1] +  rename\_cost(i,j) \\
+\end{cases}$%
+Where $i_1$ and $j_1$ are arbitrary ancestors of $i$ and $j$ used to enforce a meaningful range. 
+
+To improve the algorithm runtime, the nodes considered can be reduced. Since the final result, tree-to-tree distance,
+is constructed by subtrees, Zhang and Shasha introduce the notion of Keyroots. Effectively, keyroots are the nodes
+in the start and end tree where distinct subtrees (and sub-forests) can be selected. Finding them is simple: it is 
+the root node, and any node that has a sibling to its left. It is possible to improve the algorithm by re-using 
+addional work. Since sub-trees and sub-forests are calculated in increasing size, calculating forest edit distance
+can re-use the tree edit distance for the trees within. This gives updated selection criteria. When operating on a
+single node, that is, $l[i] = l[i_1]$ and $l[j] = l[j_1]$, we use the selection
+
+$\mathrm forestdist[l[i_1]][i][l[j_1]][j] =
+\min\begin{cases}
+    \mathrm{}forestdist[l[i_1]][i-1][l[j_1]][j] + delete\_cost(end_1) \\
+    \mathrm{}forestdist[l[i_1]][i][l[j_1]][j-1] + add\_cost(end_2) \\
+    \mathrm{}forestdist[l[i_1]][l[i]-1][l[j_1]][l[j]-1] +  rename\_cost(i,j) \\
+\end{cases}$%
+
+And otherwise, re-use the tree distance: 
+
+$\mathrm forestdist[l[i_1]][i][l[j_1]][j] =
+\min\begin{cases}
+    \mathrm{}forestdist[l[i_1]][i-1][l[j_1]][j] + delete\_cost(end_1) \\
+    \mathrm{}forestdist[l[i_1]][i][l[j_1]][j-1] + add\_cost(end_2) \\
+    \mathrm{}forestdist[l[i_1]][l[i]-1][l[j_1]][l[j]-1] +  treedist(i,j) \\
+\end{cases}$%
+
+\begin{algorithm}
+\caption{The Zhang-Shasha Algorithm}
+\begin{algorithmic}[1]
+\Require Initial tree $T_1$ and target tree $T_2$
+
+%\ENSURE Index of $x$ in $A$ or \textbf{nil} if not found
+\Comment{Setup/Preprocessing}
+\State $LRK_1 \leftarrow $ all keyroots of $T_1$
+\State $LRK_2 \leftarrow $ all keyroots of $T_2$
+
+\For{ each node $i$ in $T_1$ and $T_2$}
+    \State $l[i]$ = leftmost descendant of $i$
+\EndFor
+
+\Comment{Main Algorithm}
+\For{ $i$ in $LRK_1$}
+    \For{ $j$ in $LRK_2$}
+        \State $treedist[i][j]$ = \textbf{find\_treedist}($i,j$) \Comment{distance from tree rooted at $i$ to tree rooted at $j$}
+    \EndFor
+\EndFor
+
+\State \bf{return} $treedist[i][j]$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{subprocedure: find\_treedist}
+\begin{algorithmic}[1]
+\Require node $i$ in $T_1$ and node $j$ in tree $T_2$
+\Require $LRK_1$, $LRK_2$, and $l[x]$ in scope
+
+%\ENSURE Index of $x$ in $A$ or \textbf{nil} if not found
+\State $forestdist[0][0][0][0]$ $\leftarrow$ $0$
+
+\Comment{Not really a 4-D array:  the first and third indices are fixed, so it is actually 2-D}
+
+\Comment{Base case: any sub-forest from $T_1$ can be reduced to the empty forest}
+\For{ $end_1$ in $range(l[i],i):$} //{inclusive range}
+    \State{$forestdist[l[i]][end_1][0][0] = forestdist[l[i]][end_1-1 ][0][0] + delete\_cost(i)$}
+\EndFor
+
+\Comment{Base case: any sub-forest in $T_2$ can be constructed from  the empty forest}
+\For{ $end_2$ in $range(l[j],j):$} //{inclusive range}
+    \State{$forestdist[0][0][l[j]][end_2] = forestdist[0][0][l[j]][end_2-1] + insert\_cost(j)$}
+\EndFor
+
+\For{ $end_1$ in $range(l[i],i):$}
+    \For{ $end_2$ in $range(l[j],j):$} 
+        \If{$l[end_1] == l[i]$ and $l[end_2] == l[j]$}
+        \Comment{forestdist completed}
+        \State{%
+          $\mathrm result =
+            \min\begin{cases}
+              \mathrm{}forestdist[l[i]][end_1-1][l[j]][end_2] + delete\_cost(end_1) \\
+              \mathrm{}forestdist[l[i]][end_1][l[j]][end_2-1] + add\_cost(end_2) \\
+              \mathrm{}forestdist[l[i]][end_1-1][l[j]][end_2-1] + rename_cost(end_1,end_2) \\
+            \end{cases}$%
+        }
+        \State $treedist[end_1][end_2] = result$
+
+            \State \bf{return} $result$
+        \Else
+        \State{%
+          $\mathrm result =
+            \min\begin{cases}
+              \mathrm{}forestdist[l[i]][end_1-1][l[j]][end_2] + delete\_cost(end_1) \\
+              \mathrm{}forestdist[l[i]][end_1][l[j]][end_2-1] + add\_cost(end_2) \\
+              \mathrm{}forestdist[l[i]][l[end_1]-1][l[j]][l[end_2]-1] + treedist[end_1][end_2] \\
+            \end{cases}$%
+        }
+        \State $forestdist[l[i]][end_1][l[j]][end_2] = result$
+        \EndIf
+    \EndFor
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+
+Note that this algorithm runs in $O(n^4)$ time and $O(n^2)$ space. While the full details are provided in the 
+analysis section, it is worth summarizing quickly. Building the array of all posible tree-to-tree edit distances 
+requires $n^2$ values, as it is bounded by the number of nodes in the largest tree; and each of these values requires
+an array of forest-to-forest edit distance, again bounded by the number of nodes in the larger tree. $O(n^2)$ by $O(n^2)$
+yeilds the $O(n^4)$ time complexity, but space remains $O(n^2)$, as only a single instance of the tree-to-tree table
+and forest-to-forest table are required at once.
 
 \subsection{Hidden Markov Model Distance}
 \label{subsec:hmm-distance}

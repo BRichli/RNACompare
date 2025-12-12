@@ -2,9 +2,26 @@
 \label{sec:analasys}
 
 \subsection{ZSS Complexity}
-% JOSEPH WRITE TIME COMPLEXITY FOR ZSS HERE
-%JOSEPH WRITE SPACE COMPLEXITY FOR ZSS HERE
+The Zhang-Shasha algorithm runs with time complexity $O(n^4)$ and space complexity $O(n^2)$, where $n$ is bounded
+by the number of nodes in the larger tree. More specifically, Zhang and Shasha state that the algorithm requires
+$O(|T_1| x |T_2| x min(depth(T_1), leaves(T_1)) x min(depth(T_2), leaves(T_2)))$ in time and $O(|T_1|x|T_2|)$ in space.
+(Zhang and Shasha, 1989)
+As described in the formalism section, this is due to the two-stage dynamic programming approach. Tree edit distanced
+are computed for each subtree in $T_1$ to each subtree in $T_2$ (both clearly bounded by $n$, the number of nodes in the larger tree)
+which requires $O(n^2)$ time and space. However, for each of these calculations, further dynamic programming is requires.
+Each sub-tree edit distance is computed via sub-forest edit distance, again, from any possible sub-forest from the $T_1$
+subtree to any subforest in the $T_2$ subtree. Since the subtrees are bounded by the $n$, and the sub-forests bounded
+by the size of the subtrees, this inner calculation is also $O(n^2)$ for every one of the tree-to-tree cells which requires it.
+Combining the $O(n^2)$ outer calls with the $O(n^2)$ inner calls produces the $O(n^4)$ time complexity. Since only one table is
+needed for the outer calls, and only one inner call is active at once, the space complexity increases linearly, and 
+$O(n^2) + O(n^2)$ remains $O(n^2)$. 
 
+More modern versions of this algorithm exist, with slightly better ($O(n^3)$) time complexity. However, these algorithms
+are much more difficult to implement, and Paaßen (2019) cites Pawlik and Augsten (2011) in explaining that "... the 
+practical runtime complexity of the original TED algorithm is still competitive for balanced trees, such that we 
+regard it as a good choice in many practical scenarios." Further, as the number of bifurcation nodes in a CM 
+is relatively few, the number of keyroots found by the algorithm will also be relatively small, further reducing 
+the work needed in our specific scenario.
 
 \subsection{HMM Complexity}
 The forward algorithm has time complexity $O(nm^2)$, where $n$ is the length of the
