@@ -4,7 +4,7 @@
 \subsection{ZSS Complexity}
 The Zhang-Shasha algorithm runs with time complexity $O(n^4)$ and space complexity $O(n^2)$, where $n$ is bounded
 by the number of nodes in the larger tree. More specifically, Zhang and Shasha state that the algorithm requires
-$O(|T_1| x |T_2| x min(depth(T_1), leaves(T_1)) x min(depth(T_2), leaves(T_2)))$ in time and $O(|T_1|x|T_2|)$ in space.
+$O(|T_1| * |T_2| * min(depth(T_1), leaves(T_1)) * min(depth(T_2), leaves(T_2)))$ in time and $O(|T_1|*|T_2|)$ in space.
 (Zhang and Shasha, 1989)
 As described in the formalism section, this is due to the two-stage dynamic programming approach. Tree edit distanced
 are computed for each subtree in $T_1$ to each subtree in $T_2$ (both clearly bounded by $n$, the number of nodes in the larger tree)
@@ -35,7 +35,7 @@ While the forward algorithm is a dynamic algorithm, due to the nature of continu
 it is very unlikely that subproblems will have repeated solutions, therefore no memoization table is used. 
 Consequently, the space complexity of the forward algorithm is $O(m)$, $m$ being the number of hidden states in the model.
 
-When incorporated into the ZSS algorithm the forward algorithm and JS distance runs only once for each pair of nodes being compared, due to memoization. 
+When incorporated into the ZSS algorithm the forward algorithm and distance function runs only once for each pair of nodes being compared, due to memoization. 
 This means that when comparing two trees the distance measures are run a maximum of $N_1*N_2$ times, where $N_i$ is the number of 
 nodes in the trees resp. If we simplify to only consider the largest tree, this means that the distance measure contributes a fixed time complexity of $O(N^2*nm^2)$. We can simplify 
 the $n$ term to be the largest string seen, making that a constant, and we can simplify the $m$ term to be the largest HMM seen. 
