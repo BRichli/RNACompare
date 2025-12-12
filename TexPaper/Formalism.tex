@@ -16,12 +16,13 @@
 \subsection{Hidden Markov Model}
 
 A Hidden Markov Model (HMM) consists of a finite set of states $X$ and an alphabet $Y$.
-Each state $x \in X$ has an emission probability function, given as a vector p$(y | x_i)$, that gives the probability of
-emitting a symbol $y \in Y$, and each state $x$ has a transition probability function
+Each state $x \in X$ has an emission probability function, p$(y | x_i)$, that gives the probability of
+emitting a symbol $y \in Y$ given that the model is in hidden state $x_i$ at time-step $i$ (in algorithm~\ref{alg:hmm-forward} this is treated as a vector). 
+Each state $x \in X$ has a transition probability function
 that specifies the probability of moving from the current state to any other state in
-$X$ at the next observation period, also given as a vector $p(x_t | x_{t-1})$.
+$X$ at the next observation period, given as $p(x_t | x_{t-1})$, (also represented in vector form).
 
-This model can emit a sequence of observations, $y_{1:T}$ . The likelihood that a given
+This model can emit a sequence of observations, $y_1,\ y_2,\ ...,\ y_T\ =\ y_{1:T}$ . The likelihood that a given
 model has produced a particular observation sequence can be computed efficiently using
 the forward algorithm.  
 
@@ -63,23 +64,23 @@ To calculate the total probability of the HMM emitting the sequence we sum over 
 To compare two Hidden Markov Models $H_1$ and $H_2$, we generate several sequences of
 observations from each model. Let these sequences be labeled
 $h1_1, h1_2, \ldots, h1_n$ from $H_1$ and $h2_1, h2_2, \ldots, h2_n$ from $H_2$. 
-We approximate the Kullback--Leibler (KL) divergence in both directions and then average
-over the number of sequences. While many other divergence measures could be employed,
-such as the Jeffreys divergence, due to time constraints we only tested using
-KL divergence.
-The approximation is given by
+We approximate the Jensen Shannon (JS) divergence in both directions and then average
+over the number of sequences.
 
 
-\[
+\begin{equation}
 D(H_1, H_2) \approx \frac{1}{2n} \left(
-    \sum_{i=1}^n \log \frac{p(h1_i \mid H_2)}{p(h1_i \mid H_1)}
-    + \sum_{i=1}^n \log \frac{p(h2_i \mid H_1)}{p(h2_i \mid H_2)}
+    \sum_{i=1}^n p(h1 \mid H2)*\log_2 \frac{p(h1_i \mid H_2)}{M}
+    + \sum_{i=1}^n p(h1 \mid H2)*\log_2 \frac{p(h1_i \mid H_1)}{M}
 \right).
-\]
+\label{eq:kld}
+\end{equation}
 
 
 Here $p(h \mid H)$ denotes the probability of sequence $h$ under model $H$, computed
-using the forward algorithm.
-
+using the forward algorithm, and $M$ is a mixture model of the probabilities, here 
+given by $0.5*(p(h1 \mid H_1) + p(h2 \mid H_2))$. Averaging the outputs of this fomula over all 
+observed sequences gives us the complete Jenson Shannon Divergence formula, or in our case, an 
+observational approximation of it, as we don't have full knowledge of the underlying distributions. 
 
 

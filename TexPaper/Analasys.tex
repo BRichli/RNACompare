@@ -31,4 +31,6 @@ the cost of string generation can be folded into the overall complexity of the f
 algorithm, yielding the same $O(nm^2)$ bound when combined with the dynamic programming
 steps.
 
-
+While the forward algorithm is a dynamic algorithm, due to the nature of continuous probabilities
+it is very unlikley that subproblems will have repeated solutions, therefore no memoization table is used. 
+Therefore the space complexity of the forward algorithm is $O(m)$, $m$ being the number of hidden states in the model.

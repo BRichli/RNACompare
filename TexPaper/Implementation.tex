@@ -38,21 +38,15 @@ Because the ZSS algorithm must also account for insertions and deletions, we req
 consistent rule for comparing a node to its absence. We handle this by comparing the 
 observed sequences emitted from the node, to the probability that it emits the empty string. 
 
-\[
-D(H, \emptyset) \approx \frac{1}{2n} \left(
-    \sum_{i=1}^n \log \frac{p(h_i \mid H)}{p(\emptyset \mid H)}
-    + \sum_{i=1}^n \log \frac{p(\emptyset \mid H)}{p(h_i \mid H)}
-\right).
-\]
-
-Here $\emptyset$ denotes the empty string, and $h_i$ are the observed strings generated from the model $H$.
-
+For this we calculate the Jensen Shannon Divergence of the probabilities of the node's observed emissions
+compared to the probabilities that it emitted the empty string. 
 
 Additionally, certain nodes in the concrete model cannot be represented internally as
 Hidden Markov Models. Specifically, the \texttt{BIF} and \texttt{END} nodes are treated
 as structural markers rather than probabilistic models. Any time these nodes are compared 
-to like named nodes they will return a log-odds of 0.0 (perfect match) and a default high value
-otherwise. For this test we chose -5.0 odds. 
+to like named nodes they will return a similarity of 0.0 (perfect match) and the value $log_2(2)$ = 1 when 
+compared to non-similar nodes. This value is the maximum value of the JSD function when using base two for the log
+calcuations.
 
 
 
