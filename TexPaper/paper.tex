@@ -182,77 +182,34 @@ showtabs=false
 }
 {}
 \newcommand\rcode{\lstinline[language=Ruby,mathescape,basicstyle=\sffamily\normalsize,breakatwhitespace,xleftmargin=0pt,xrightmargin=0pt]}
-%% END RUBY
 
-% dark mode
-% \pagecolor[rgb]{0,0,0} %black
-% \color[rgb]{0.5,0.5,0.5} %grey
 
 
 %%
 %% end of the preamble, start of the body of the document source.
 \begin{document}
-\linenumbers
+%\linenumbers
 %%
 %% The "title" command has an optional parameter,
 %% allowing the author to define a "short title" to be used in page headers.
-\title{Comparing RNA models for something something}
+\title{Comparing RNA Covariance Models using Zhang Shasha Tree Edit Distance}
 
-% \author{Sankha Narayan Guria}
-% % \authornote{with author1 note}          %% \authornote is optional;
-%                                     %% can be repeated if necessary
-% % \orcid{nnnn-nnnn-nnnn-nnnn}             %% \orcid is optional
-% \affiliation{
-% % \position{Position1}
-% % \department{Department of Computer Science}              %% \department is recommended
-% \institution{University of Kansas}            %% \institution is required
-% % \streetaddress{Street1 Address1}
-% \city{Lawrence}
-% \state{Kansas}
-% \postcode{66045}
-% \country{USA}                    %% \country is recommended
-% }
-% \email{sankha@ku.edu}          %% \email is recommended
+
 
 \author{\IEEEauthorblockN{Bryan Richlinski}
-\IEEEauthorblockA{\textit{University of Kansas} \\
-brichli@ku.edu}
+\IEEEauthorblockA{\textit{University of Kansas} 
+b748r023@ku.edu} \\
 \and
 \IEEEauthorblockN{Dominic Tassio}
-\IEEEauthorblockA{\textit{University of Kansas} \\
-itsamemario@ku.edu}
-\and
-\IEEEauthorblockN{Joseph Joestar}
-\IEEEauthorblockA{\textit{University of Kansas} \\
-bobsyouruncle@ku.edu}
+\IEEEauthorblockA{\textit{University of Kansas} 
+dominic.tassio@ku.edu}
+\and \\
+\IEEEauthorblockN{Joseph Vinduska}
+\IEEEauthorblockA{\textit{University of Kansas} 
+joseph.vinduska@ku.edu}
 }
 
-%%
-%% By default, the full list of authors will be used in the page
-%% headers. Often, this list is too long, and will overlap
-%% other information printed in the page headers. This command allows
-%% the author to define a more concise list
-%% of authors' names for this purpose.
-%\renewcommand{\shortauthors}{Guria et al.}
 
-% DVH:
-
-% Some past approaches require a complete and accurate embedding of the source
-% language in the logic of the underlying solver the synthesis tool uses. This is
-% infeasible for many industrial-grade languages. Other approaches are strongly
-% coupled with the semantics of the source language with purpose-built solvers,
-% but this necessarily ties the synthesis engine to the particular language model
-% used.
-
-% We propose an alternative approach based on user-defined abstract semantics that
-% aims to be both lightweight and language agnostic. The abstract semantics are
-% lightweight to design, simplifying away inconsequential language details, yet
-% effective in guiding the search for programs. The synthesis engine is
-% parameterized by the abstract semantics and independent of the source language.
-% Candidate programs are validated against test cases using the actual concrete
-% language implementation to ensure correctness. Our results demonstrate this is a
-% promising general-purpose approach to synthesis that may broaden the
-% applicability of synthesis to more full-featured languages.
 
 \maketitle
 %\IEEEpeerreviewmaketitle
@@ -260,9 +217,7 @@ bobsyouruncle@ku.edu}
 %%
 %% The abstract is a short summary of the work to be presented in the
 %% article.
-\begin{abstract}
- results indicate the entropy-ordered enumeration is a promising general-purpose technique to accelerate goal-directed top-down search for program synthesis.
-\end{abstract}  
+
 
 
 

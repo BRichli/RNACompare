@@ -35,6 +35,12 @@ While the forward algorithm is a dynamic algorithm, due to the nature of continu
 it is very unlikley that subproblems will have repeated solutions, therefore no memoization table is used. 
 Consequently, the space complexity of the forward algorithm is $O(m)$, $m$ being the number of hidden states in the model.
 
+When incorporated into the ZSS algorithm the forward algorithm and JS distance runs only once for each pair of nodes being compared, due to memoization. 
+This means that when comparing two trees the distance measures are run a maximum of $N_1*N_2$ times, where $N_i$ is the number of 
+nodes in the trees resp. This means that the distance measure contributes a fixed time complexity of $O(N^2*nm^2)$. We can simplify 
+the $n$ term to be the largest string seen, making that a constant, and we can simplify the $m$ term to be the largest HMM seen. 
+This simplifies this to an addition of a $O(N^2*m^2)$.
+
 The label distance algorithm requires we use the HMM to generate multiple random, but statistically likely, sequences, each of
 indeterminate length. As this is a random process, a worst-case time complexity cannot
 be specified for this generation step without fixing the length of the generated strings. However, if the length
