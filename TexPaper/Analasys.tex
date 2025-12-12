@@ -38,7 +38,7 @@ Consequently, the space complexity of the forward algorithm is $O(m)$, $m$ being
 When incorporated into the ZSS algorithm the forward algorithm and distance function runs only once for each pair of nodes being compared, due to memoization. 
 This means that when comparing two trees the distance measures are run a maximum of $N_1*N_2$ times, where $N_i$ is the number of 
 nodes in the trees resp. If we simplify to only consider the largest tree, this means that the distance measure contributes a fixed time complexity of $O(N^2*nm^2)$. We can simplify 
-the $n$ term to be the largest string seen, making that a constant, and we can simplify the $m$ term to be the largest HMM seen. 
+the $n$ term to be the largest string seen in any Node of the two trees, making it a constant that is dominated by the $m^2$ term, and we can simplify the $m$ term to be the largest HMM seen. 
 This simplifies the calculation to a $O(N^2*m^2)$ that is added to the total cost of the ZSS algorithm.
 
 The label distance algorithm requires we use the HMM to generate multiple random, but statistically likely, sequences, each of
@@ -46,4 +46,4 @@ indeterminate length. As this is a random process, a worst-case time complexity 
 be specified for this generation step without fixing the length of the generated strings. However, if the length
 of a string is known, the complexity of its generation is linear in that length. Therefore, the cost of string generation can be folded into the overall complexity of the forward
 algorithm. Being unable to specify the length of the sequences in advance does mean that empirical measurements of time complexity may deviate from the 
-time complexity presented in the ZSS algorithm, due to the confounding $n$ term.
+time complexity presented in the ZSS algorithm, due to the confounding length term.
