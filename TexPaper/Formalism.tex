@@ -17,19 +17,19 @@
 
 A Hidden Markov Model (HMM) consists of a finite set of states $X$ and an alphabet $Y$.
 Each state $x \in X$ has an emission probability function, p$(y | x_i)$, that gives the probability of
-emitting a symbol $y \in Y$ given that the model is in hidden state $x_i$ at time-step $i$ (in algorithm~\ref{alg:hmm-forward} this is treated as a vector). 
+emitting a symbol $y \in Y$ given that the model is in hidden state $x_i$ at time-step $i$. 
 Each state $x \in X$ has a transition probability function
 that specifies the probability of moving from the current state to any other state in
-$X$ at the next observation period, given as $p(x_t | x_{t-1})$, (also represented in vector form).
+$X$ at the next observation period, given as $p(x_t | x_{t-1})$.
 
 This model can emit a sequence of observations, $y_1,\ y_2,\ ...,\ y_T\ =\ y_{1:T}$ . The likelihood that a given
 model has produced a particular observation sequence can be computed efficiently using
 the forward algorithm.  
 
-A naive solution to find the probability of being in state $x$ at time $T$ 
-and emitting symbol $y_T$, by summing the probability of all possible paths which could have emitted the entire sequence and ended in state $x$. Instead 
-the forward algorimthm uses the markov property (the current state only depends on the previous state) to construct an optimal substructure. 
-We can say that $(x_T | y_{1:T})$ only depends upon the solutions to $(x_{T-1} | y_{:T-1})$, and the constant transition / emission probabilites 
+A naive solution to find the probability of producing some sequence $y_{1:T}$ and ending in state $x_T$ can be naively computed by summing the 
+probability of all possible paths which could have emitted the entire sequence and ended in state $x$. Instead,
+the forward algorimthm uses the Markov property, ie. that the current state only depends on the previous state, to break the problem into optimal subproblems. 
+We can say that $(x_T | y_{1:T})$ only depends upon the solutions to $(x_{T-1} | y_{:T-1})$ (by the Markov property), and the constant transition / emission probabilites 
 applied to these subproblem solutions.
 
 
@@ -54,33 +54,35 @@ applied to these subproblem solutions.
 % BRYAN WRITE FORMALISM FOR HMM ie PSEUDOCODE AND SHORT EXPLANATION
 
 In algorithm~\ref{alg:hmm-forward}, we present the forward algorithm. After initializing the model parameters and prior probabilities,
-we iterate through each time step $t$ from $1$ to $T$. We then update the probability of being in a given state by summing over all probabilities
-from the previous time step, weighted by their associated transition probabilities, and multiplying the sum by the emission probability of the current ovbservation.
+the algorithm iterates through each time step $t=1$  to $t=T$. At each iteration the algorithm updates the probability of being in a given state and emitting the current symbol in the sequence.
+It does this by summing over all probabilities
+from the previous time step, each weighted by their associated transition probabilities, and multiplying the sum by the emission probability of the current observation 
+given the state currently being calculated for.
 
-The final result of this step is the probability of being in each state at time $T$, given the entire sequence of observations up to that point.
-To calculate the total probability of the HMM emitting the sequence we sum over all final state probabilities. 
+The final result of this step is the probability of being in state $x$ at time $T$, given the entire sequence of observations up to that point.
+This calculation is repeated for each hidden state at each time in the sequence. 
+To calculate the total probability of the HMM emitting the sequence, regardless of final state, wthe algorithm will sum over all final state probabilities. 
 
 \subsection{Distance Calculation}
-To compare two Hidden Markov Models $H_1$ and $H_2$, we generate several sequences of
+To compare two Hidden Markov Models $H_1$ and $H_2$, our comparison algorithm generates several sequences of
 observations from each model. Let these sequences be labeled
-$h1_1, h1_2, \ldots, h1_n$ from $H_1$ and $h2_1, h2_2, \ldots, h2_n$ from $H_2$. 
-We approximate the Jensen Shannon (JS) divergence in both directions and then average
-over the number of sequences.
+$h1_1, h1_2, \ldots, h1_n$. 
+These sequences are then used to approximate the Jensen Shannon (JS) divergence between $H_1$ and $H_2$
 
 
 \begin{equation}
 D(H_1, H_2) \approx \frac{1}{2n} \left(
-    \sum_{i=1}^n p(h1 \mid H2)*\log_2 \frac{p(h1_i \mid H_2)}{M}
-    + \sum_{i=1}^n p(h1 \mid H2)*\log_2 \frac{p(h1_i \mid H_1)}{M}
+    \sum_{i=1}^n p(h \mid H2)*\log_2 \frac{p(h_i \mid H_2)}{M}
+    + \sum_{i=1}^n p(h \mid H2)*\log_2 \frac{p(h_i \mid H_1)}{M}
 \right).
-\label{eq:kld}
+\label{eq:jsd}
 \end{equation}
 
 
-Here $p(h \mid H)$ denotes the probability of sequence $h$ under model $H$, computed
-using the forward algorithm, and $M$ is a mixture model of the probabilities, here 
-given by $0.5*(p(h1 \mid H_1) + p(h2 \mid H_2))$. Averaging the outputs of this fomula over all 
-observed sequences gives us the complete Jenson Shannon Divergence formula, or in our case, an 
-observational approximation of it, as we don't have full knowledge of the underlying distributions. 
+In equation \ref{eq:jsd} $p(h \mid H)$ denotes the probability of observing sequence $h$ under model $H$, computed
+using the forward algorithm. $M$ is a mixture model of the probabilities, here 
+given by $0.5*(p(h \mid H_1) + p(h \mid H_2))$. This is merely an approximation of the JS Divergence, as
+a true measure would require full knowlede of the probability distributions of $H_1$ and $H_2$, but this 
+provides an approximation. 
 
 
