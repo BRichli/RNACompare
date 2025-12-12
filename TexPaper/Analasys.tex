@@ -44,6 +44,5 @@ This simplifies the calculation to a $O(N^2*m^2)$ that is added to the total cos
 The label distance algorithm requires we use the HMM to generate multiple random, but statistically likely, sequences, each of
 indeterminate length. As this is a random process, a worst-case time complexity cannot
 be specified for this generation step without fixing the length of the generated strings. However, if the length
-of a string is known, the complexity of its generation is linear in that length. Therefore, the cost of string generation can be folded into the overall complexity of the forward
-algorithm. Being unable to specify the length of the sequences in advance does mean that empirical measurements of time complexity may deviate from the 
+of a string is known, the complexity of its generation is linear in that length. Being unable to specify the length of the sequences in advance does mean that empirical measurements of time complexity may deviate from the 
 time complexity presented in the ZSS algorithm, due to the confounding length term.
