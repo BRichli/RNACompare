@@ -33,7 +33,9 @@ dynamic programming matrix.
 
 One key aspect of this algorithm is that the cost of adding, deleting, or re-labeling nodes is determined by functions
 that the implementer can provide. As discussed below, this project implements a custom re-labeling cost, determined by
-the specific HMMs contained in each node. Once the criteria for costs are determined, the algorithm used a simple 
+the specific HMMs contained in each node. The rest of this analysis assumes that the cost of these functions is $O(1)$; 
+however, in practice, they depend on the contents of the node, increasing the overall complexity by a multiplicative term.
+Once the criteria for costs are determined, the algorithm used a simple 
 selection criteria:
 
 $\mathrm forestdist[l[i_1]][i][l[j_1]][j] =
