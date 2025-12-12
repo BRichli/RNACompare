@@ -87,13 +87,13 @@ class Node:
 
             logs = list(
                 map(
-                    lambda x: np.log(x[0] / (x[1] + 0.1)),
+                    lambda x: np.log(x[0] / (x[1] + 0.001)),
                     our_probs_their_strings,
                 )
             )
             logs += list(
                 map(
-                    lambda x: np.log(x[1] / (x[0] + 0.1)),
+                    lambda x: np.log(x[1] / (x[0] + 0.001)),
                     our_probs_their_strings,
                 )
             )
@@ -135,7 +135,7 @@ class Node:
 
             logs = list(
                 map(
-                    lambda x: np.log(x[0] / (x[1] + 0.1)),
+                    lambda x: np.log(x[0] / (x[1] + 0.001)),
                     our_probs_their_strings,
                 )
             )
@@ -148,7 +148,7 @@ class Node:
             )
             logs += list(
                 map(
-                    lambda x: np.log(x[0] / (x[1] + 0.1)),
+                    lambda x: np.log(x[0] / (x[1] + 0.001)),
                     their_probs_our_strings,
                 )
             )
