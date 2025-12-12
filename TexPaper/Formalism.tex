@@ -195,10 +195,11 @@ applied to these subproblem solutions.
 % BRYAN WRITE FORMALISM FOR HMM ie PSEUDOCODE AND SHORT EXPLANATION
 
 In algorithm~\ref{alg:hmm-forward}, we present the forward algorithm. After initializing the model parameters and prior probabilities,
-the algorithm iterates through each time step $t=1$  to $t=T$. At each iteration the algorithm updates the probability of being in a given state and emitting the current symbol in the sequence.
-It does this by summing over all probabilities
-from the previous time step, each weighted by their associated transition probabilities, and multiplying the sum by the emission probability of the current observation 
-given the state currently being calculated for.
+the algorithm iterates through each time step $t=1$  to $t=T$. At each iteration the algorithm updates the probability of being in a given state $x_i$ and emitting the current symbol in the sequence $y_t$.
+It does this by multiplying the prior probabilites of being in state $(x_{j} | y_{1:t-1})$ by the probability of 
+transitioning to the state curently being calculated for $x_i$. This is done for each prior state. These totals are summed and multiplied by the emission probability of the current observation 
+given the state currently being calculated for, $(y_t | x_i)$. This calculation is repeated for each state, and the whole process
+is repeated for each time step, until the calculation for the final observation is complete.
 
 The final result of this step is the probability of being in state $x$ at time $T$, given the entire sequence of observations up to that point.
 This calculation is repeated for each hidden state at each time in the sequence. 
@@ -207,7 +208,7 @@ To calculate the total probability of the HMM emitting the sequence, regardless 
 \subsection{Distance Calculation}
 To compare two Hidden Markov Models $H_1$ and $H_2$, our comparison algorithm generates several sequences of
 observations from each model. Let these sequences be labeled
-$h1_1, h1_2, \ldots, h1_n$. 
+$h_1, h_2, \ldots, h_n$. 
 These sequences are then used to approximate the Jensen Shannon (JS) divergence between $H_1$ and $H_2$
 
 
