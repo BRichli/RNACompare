@@ -32,7 +32,7 @@ character. This modification may shift the comparison between HMMs toward
 a more structural rather than emission-based distance measure. Further research could
 evaluate the effect of this approach. 
 
-\subsection{Distance Metric Augmenations}
+\subsection{Distance Metric Augmentations}
 
 Because the ZSS algorithm must also account for insertions and deletions, we require a
 rule for comparing a node to its absence. We handle this by comparing the 
@@ -43,10 +43,10 @@ compared to the probabilities that it emitted the empty string. As opposed to th
 emitting said observation. 
 
 Additionally, certain nodes in the concrete model cannot be represented as
-Hidden Markov Models. Specifically, nodes labled \texttt{BIF} and \texttt{END} act as structural markers rather than probabilistic models. Any time these nodes are compared 
+Hidden Markov Models. Specifically, nodes labeled \texttt{BIF} and \texttt{END} act as structural markers rather than probabilistic models. Any time these nodes are compared 
 to like named nodes they will return a similarity of 0.0 (perfect match), and return the value $1$ when 
 compared to non-similar nodes. $\log_2(2) = 1$ is the maximum value of the JSD function when using base two for the log
-calcuations.
+calculations.
 
 
 
@@ -63,7 +63,7 @@ overall efficiency.
 \subsection{Hyperparameters}
 
 The only hyperparmeter in our distance function is the number of strings generated for the Node distance comparison. currently
-this is set at 3, larger numbers may yeild more accurate results. 
+this is set at 3, larger numbers may yield more accurate results. 
 
 
 

@@ -11,15 +11,15 @@ However, it is limited in that it cannot represent more complex structures.
 These more intricate configurations are referred to as \sss{} (\sssabv{}), and they require more powerful modeling techniques to be fully captured.  
 To address this issue, a \cm (\cmabv) is often used to model these structures. The \cmabv is a form of restricted \scfg (\scfgabv) which captures a subset of the
 language of nested strings. These CM's are often represented as tree structures consisting of nodes. The nodes of the tree structure
-either serve structural purposes, by adding in bifurcation ot the structure, or contain states equipped with transition and emission probabilites.
+either serve structural purposes, by adding in bifurcation ot the structure, or contain states equipped with transition and emission probabilities.
 % \br{verify this, it is rather apparent, but still find a source.}
 
 % As we are primarily concerned with secondary structural properties, we choose to use the latter technique when comparing different \rnaf{}.  
 % We hypothesize that \rnaf{} themselves can be examined for similarity, by comparing the similarity of the models used to represent them.  
 % We propose a modified tree edit distance for examining the similarity of different \cm's which compares both structure and \lo transitions.
 We hypothesize that the structural similarity of these CM trees can be used as a proxy of rna Family similarity. To this 
-end we have develped an algorithm that utilizes the Zhang Shasha Tree Edit distance algorithm, augmented with node to node comparison that uses a HMM Distance comparison 
-funcion. This algorithm takes as input two CM's and measures their structureal similarity. 
+end we have developed an algorithm that utilizes the Zhang Shasha Tree Edit distance algorithm, augmented with node to node comparison that uses a HMM Distance comparison 
+function. This algorithm takes as input two CM's and measures their structural similarity. 
 
 We validate our algorithm as finding the smallest edit distance between two \cm s in Section~\ref{sec:formalism}. To validate the efficacy of our approach we 
 compare our results to the \clique{} of RNA families. These \clique s encode how similar families are to each-other based upon empirical evidence. 

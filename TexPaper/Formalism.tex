@@ -7,9 +7,9 @@
 % JOSEPH WRITE FORMALISM FOR ZSS ie PSEUDOCODE AND SHORT EXPLANATION
 In our approach to the problem, we decided to use the Zhang-Shasha algorithm for tree edit distance. 
 The Zhang-Shasha algorithm \cite{ZSS} (published by Kaizhong Zhang and Dennis Shasha in 1989) is a dynamic programming algorithm
-that computes tree edit distance for ordered, labled trees. These terms are straightforward: in labled trees, nodes
+that computes tree edit distance for ordered, labeled trees. These terms are straightforward: in labeled trees, nodes
 are assigned one of a selection of distinct types (labels), and exchanging two nodes may produce a different tree,
-if they are not of the same type. Ordered trees, as the name implies, rely on a fixed (ordered) interperetation
+if they are not of the same type. Ordered trees, as the name implies, rely on a fixed (ordered) interpretation
 of their children, usually left to right. Again, swapping a left child and a right child may produce a distinct
 tree, depending on their own labels and descendants. Fortunately, this fits our scenario well. The nodes in the
 trees we consider have distinct, meaningful contents, so labels are appropriate. Since the models are RNA-derived,
@@ -18,7 +18,7 @@ as according to Akutsu et. al. \cite{ExactAlg}, in further work, Zhang and Shash
 for unordered trees is NP-hard. 
 
 As a dynamic programming algorithm, the Zhang-Shasha algorithm bears some similarity to other dynamic programming 
-algorithms, such as string edit distance. To calculate tree edit distace, the minimal cost is calculated to transform
+algorithms, such as string edit distance. To calculate tree edit distance, the minimal cost is calculated to transform
 one tree into another using three basic operations: adding, deleting, or re-labeling a node. However, as trees allow 
 arbitrary connections and are more complicated than strings, additional methods are needed. Two phases are needed
 to calculate tree edit distance. A dynamic programming table is built up, calculating the cost of changing any
@@ -26,14 +26,14 @@ sub-tree in the input to any sub-tree in the output, and the results combined fo
 and for each sub-tree, the authors generalize the algorithm to forest edit distance. 
 
 By numbering the nodes in each (sub)tree by performing a postorder traversal, children are given lower numbers 
-than their parents, with the leftmost descendant of the root recieving the number $1$ and the root being assigned
-some value $n$. By selecting a range $[a...b]$, a sub-forest is selcted. Using a fixed $a$ and increasing $b$ allows
+than their parents, with the leftmost descendant of the root receiving the number $1$ and the root being assigned
+some value $n$. By selecting a range $[a...b]$, a sub-forest is selected. Using a fixed $a$ and increasing $b$ allows
 the algorithm to have a base case (a single node) and build up to the entire sub-tree to complete the primary 
-dynmic programming matrix. 
+dynamic programming matrix. 
 
-One key aspect of this algorithm is that the cost of adding, deleting, or re-labling nodes is determined by functions
-that the implementer can provide. As discussed below, this project implments a custom re-labling cost, determined by
-the specific HMMs contiined in each node. Once the criteria for costs are determined, the algorimthm used a simple 
+One key aspect of this algorithm is that the cost of adding, deleting, or re-labeling nodes is determined by functions
+that the implementer can provide. As discussed below, this project implements a custom re-labeling cost, determined by
+the specific HMMs contained in each node. Once the criteria for costs are determined, the algorithm used a simple 
 selection criteria:
 
 $\mathrm forestdist[l[i_1]][i][l[j_1]][j] =
@@ -48,7 +48,7 @@ To improve the algorithm runtime, the nodes considered can be reduced. Since the
 is constructed by subtrees, Zhang and Shasha introduce the notion of Keyroots. Effectively, keyroots are the nodes
 in the start and end tree where distinct subtrees (and sub-forests) can be selected. Finding them is simple: it is 
 the root node, and any node that has a sibling to its left. It is possible to improve the algorithm by re-using 
-addional work. Since sub-trees and sub-forests are calculated in increasing size, calculating forest edit distance
+additional work. Since sub-trees and sub-forests are calculated in increasing size, calculating forest edit distance
 can re-use the tree edit distance for the trees within. This gives updated selection criteria. When operating on a
 single node, that is, $l[i] = l[i_1]$ and $l[j] = l[j_1]$, we use the selection
 
@@ -147,10 +147,10 @@ $\mathrm forestdist[l[i_1]][i][l[j_1]][j] =
 
 
 Note that this algorithm runs in $O(n^4)$ time and $O(n^2)$ space. While the full details are provided in the 
-analysis section, it is worth summarizing quickly. Building the array of all posible tree-to-tree edit distances 
+analysis section, it is worth summarizing quickly. Building the array of all possible tree-to-tree edit distances 
 requires $n^2$ values, as it is bounded by the number of nodes in the largest tree; and each of these values requires
 an array of forest-to-forest edit distance, again bounded by the number of nodes in the larger tree. $O(n^2)$ by $O(n^2)$
-yeilds the $O(n^4)$ time complexity, but space remains $O(n^2)$, as only a single instance of the tree-to-tree table
+yields the $O(n^4)$ time complexity, but space remains $O(n^2)$, as only a single instance of the tree-to-tree table
 and forest-to-forest table are required at once.
 
 
@@ -169,8 +169,8 @@ the forward algorithm.
 
 A naive solution to find the probability of producing some sequence $y_{1:T}$ and ending in state $x_T$ can be naively computed by summing the 
 probability of all possible paths which could have emitted the entire sequence and ended in state $x$. Instead,
-the forward algorimthm uses the Markov property, ie. that the current state only depends on the previous state, to break the problem into optimal subproblems. 
-We can say that $(x_T | y_{1:T})$ only depends upon the solutions to $(x_{T-1} | y_{:T-1})$ (by the Markov property), and the constant transition / emission probabilites 
+the forward algorithm uses the Markov property, ie. that the current state only depends on the previous state, to break the problem into optimal subproblems. 
+We can say that $(x_T | y_{1:T})$ only depends upon the solutions to $(x_{T-1} | y_{:T-1})$ (by the Markov property), and the constant transition / emission probabilities 
 applied to these subproblem solutions.
 
 
@@ -202,7 +202,7 @@ given the state currently being calculated for.
 
 The final result of this step is the probability of being in state $x$ at time $T$, given the entire sequence of observations up to that point.
 This calculation is repeated for each hidden state at each time in the sequence. 
-To calculate the total probability of the HMM emitting the sequence, regardless of final state, wthe algorithm will sum over all final state probabilities. 
+To calculate the total probability of the HMM emitting the sequence, regardless of final state, the algorithm will sum over all final state probabilities. 
 
 \subsection{Distance Calculation}
 To compare two Hidden Markov Models $H_1$ and $H_2$, our comparison algorithm generates several sequences of
@@ -223,7 +223,7 @@ D(H_1, H_2) \approx \frac{1}{2n} \left(
 In equation \ref{eq:jsd} $p(h \mid H)$ denotes the probability of observing sequence $h$ under model $H$, computed
 using the forward algorithm. $M$ is a mixture model of the probabilities, here 
 given by $0.5*(p(h \mid H_1) + p(h \mid H_2))$. This is merely an approximation of the JS Divergence, as
-a true measure would require full knowlede of the probability distributions of $H_1$ and $H_2$, but this 
+a true measure would require full knowledge of the probability distributions of $H_1$ and $H_2$, but this 
 provides an approximation. 
 
 
