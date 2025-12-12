@@ -2,7 +2,7 @@
 \label{sec:evaluation}
 % DOMINIC WRITE EVALUATION 
 
-Having implemented this approach for comparing covariance models, we need a way to evaluate how well it performs.
+Having implemented this approach for comparing covariance models, we need a way to evaluate its performance.
 We explore two methods to evaluate how well our approach compares covariance models.
 First, is an extremely naïve statistical analysis that will use the RNA family's identified clan to compare within- and between-group similarity.
 Second, is a more nuanced approach that utilizes concrete sequence comparison as a base truth for comparing the models.
@@ -20,11 +20,11 @@ Despite these flaws, we still attempt this comparison method.
 Permutational multivariate analysis of variance (PERMANOVA) is a good statistical test for this comparison. Compared to ANOVA, which compares the means of groups, PERMANOVA uses a distance measurement between values.
 This matches perfectly with our need to evaluate our distance comparison and mitigates the impact of our disparate group sizes.
 
-We arbitrarily selected 40 covariance models across 10 clans for use in our evaluation.
+We arbitrarily selected 40 covariance models from 10 clans for use in our evaluation.
 This gives 780 combinations of families to compare.
-On an M4 MacBook Pro with 24GB of RAM, this took approximately 3 hours to complete.
-Given the distance from these combinations, we are able to construct the distance matrix necessary for PERMANOVA.
-Running this statistical test resulted in a test statistic of \textbf{1.029482} and a p-value of approximately \textbf{0.4}.
+On an M4 MacBook Pro with 24GB of RAM, this took approximately 3 minutes to complete.
+Given the distance from these combinations, we construct the distance matrix necessary for PERMANOVA.
+Running this statistical test resulted in a test statistic of approximately \textbf{15} and a p-value of approximately \textbf{0.001}.
 The test statistic describes the similarity of the within- and between-group comparisons.
 We will discuss the implications of these results in Section~\ref{sec:discussion}.
 
