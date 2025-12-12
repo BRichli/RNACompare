@@ -6,7 +6,7 @@
 \label{subsec:zhang-shasha}
 % JOSEPH WRITE FORMALISM FOR ZSS ie PSEUDOCODE AND SHORT EXPLANATION
 In our approach to the problem, we decided to use the Zhang-Shasha algorithm for tree edit distance. 
-The Zhang-Shasha algorithm (published by Kaizhong Zhang and Dennis Shasha in 1989) is a dynamic programming algorithm
+The Zhang-Shasha algorithm \cite{ZSS} (published by Kaizhong Zhang and Dennis Shasha in 1989) is a dynamic programming algorithm
 that computes tree edit distance for ordered, labled trees. These terms are straightforward: in labled trees, nodes
 are assigned one of a selection of distinct types (labels), and exchanging two nodes may produce a different tree,
 if they are not of the same type. Ordered trees, as the name implies, rely on a fixed (ordered) interperetation
@@ -14,7 +14,7 @@ of their children, usually left to right. Again, swapping a left child and a rig
 tree, depending on their own labels and descendants. Fortunately, this fits our scenario well. The nodes in the
 trees we consider have distinct, meaningful contents, so labels are appropriate. Since the models are RNA-derived,
 and RNA is read left to right, the notion of order should be applicable as well. There are also practical considerations,
-as according to Akutsu et. al. (2009), in further work, Zhang and Shasha proved that the general case of tree edit distance 
+as according to Akutsu et. al. \cite{ExactAlg}, in further work, Zhang and Shasha prove that the general case of tree edit distance 
 for unordered trees is NP-hard. 
 
 As a dynamic programming algorithm, the Zhang-Shasha algorithm bears some similarity to other dynamic programming 
